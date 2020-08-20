@@ -1,0 +1,21 @@
+html,
+body,
+#app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.el-breadcrumb {
+  margin-bottom: 15px;
+  font-size: 17px;
+}
+
+.el-button {
+  margin-right: 8px;
+}
+
+.el-table {
+  margin-top: 20px;
+  min-width: 350px;
+}
