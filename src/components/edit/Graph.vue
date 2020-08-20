@@ -156,7 +156,8 @@
 // import Bus from '../assets/Bus.js'
 // import global from '../assets/global'
 // import Project from './Project'
-// import { UnionSet } from '../assets/UnionSet'
+import {UnionSet} from "../../plugins/UnionSet"
+
 var graph
 var model
 var tbContainer
@@ -1003,7 +1004,7 @@ export default {
         .then(function (response) {
           if (response.data.code == 0) {
             elementInfo = response.data.elements
-            var basePath = 'http://localhost:8443'
+            var basePath = 'http://localhost:8081'
             for (var index in elementInfo) {
               curElement = elementInfo[index]
               var image = document.createElement('img')
@@ -1395,7 +1396,7 @@ export default {
   position: absolute;
   top: 70px;
   left: 120px;
-  right: 330px;
+  right: 300px;
   bottom: 10px;
   border: thin solid #2e2d3c;
   background-image: url("../../assets/bg.svg");
@@ -1405,7 +1406,7 @@ export default {
   overflow: auto;
   position: absolute;
   background-color: #f2f6fc;
-  width: 330px;
+  width: 300px;
   right: 0;
   bottom: 10px;
   top: 40px;
