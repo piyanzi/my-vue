@@ -12,6 +12,9 @@ import NewGas from '../components/new/NewGas'
 import GasList from '../components/list/GasList'
 import EditGas from '../components/edit/EditGas'
 import Result from '../components/results/Result'
+import ElementList from '../components/list/ElementList'
+import AttributeList from '../components/list/AttributeList'
+import ConnectionList from '../components/list/ConnectionList'
 
 Vue.use(Router)
 
@@ -37,6 +40,9 @@ const router = new Router({
         { path: '/projectList', component: ProjectList },
         { path: '/gasList', component: GasList },
         { path: '/ejectorList', component: Wait },
+        { path: '/elementList', component: ElementList },
+        { path: '/attributeList', component: AttributeList },
+        { path: '/connectionList', component: ConnectionList },
         // 编辑页
         { path: '/editGas', component: EditGas },
         { path: '/editProject', component: EditProject },
