@@ -9,7 +9,7 @@
           icon="el-icon-circle-plus-outline"
           size="mini"
           round
-        >新增属性</el-button>
+        >新增连接点</el-button>
       </el-col>
     </el-row>
     <br />
@@ -19,7 +19,6 @@
       ref="tableForm"
       style="width: 100%"
     >
-      <el-table-column prop="id" label="id" width="150"></el-table-column>
       <el-table-column prop="element_id" label="元件id" width="150"></el-table-column>
       <el-table-column prop="x" label="连接点x" width="150"></el-table-column>
       <el-table-column prop="y" label="连接点y" width="150"></el-table-column>
@@ -43,26 +42,20 @@
       ></el-pagination>
     </div>
 
-    <el-dialog title="新增属性" width="30%" :visible.sync="addFormVisible" @close="closeDialog">
+    <el-dialog title="新增连接点" width="30%" :visible.sync="addFormVisible" @close="closeDialog">
       <!-- 在el-dialog中进行嵌套el-form实现弹出表格的效果 -->
       <el-form :rules="addEditRules" :model="addEditForm" ref="addEditForm">
         <el-form-item label="元件id" label-width="80px" prop="element_id">
           <el-input v-model="addEditForm.element_id" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="节点压力" label-width="80px" prop="pressure">
-          <el-input v-model="addEditForm.pressure" auto-complete="off"></el-input>
+        <el-form-item label="连接点x" label-width="80px" prop="x">
+          <el-input v-model="addEditForm.x" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="节点压力是否已知" label-width="80px" prop="pressure_state">
-          <el-input v-model="addEditForm.pressure_state" auto-complete="off"></el-input>
+        <el-form-item label="连接点y" label-width="80px" prop="y">
+          <el-input v-model="addEditForm.y" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="节点载荷" label-width="80px" prop="loads">
-          <el-input v-model="addEditForm.loads" auto-complete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="节点载荷是否已知" label-width="80px" prop="load_state">
-          <el-input v-model="addEditForm.load_state" auto-complete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="节点载荷是否已知" label-width="80px" prop="elevation">
-          <el-input v-model="addEditForm.elevation" auto-complete="off"></el-input>
+        <el-form-item label="备注名称" label-width="80px" prop="name">
+          <el-input v-model="addEditForm.name" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -75,17 +68,17 @@
     <el-dialog title="编辑" width="30%" :visible.sync="editFormVisible">
       <!-- 在el-dialog中进行嵌套el-form实现弹出表格的效果 -->
       <el-form :rules="editRules" :model="editForm" ref="editForm">
-        <el-form-item label="元件id" label-width="80px" prop="eid">
-          <el-input v-model="editForm.eid" auto-complete="off"></el-input>
+        <el-form-item label="元件id" label-width="80px" prop="element_id">
+          <el-input v-model="editForm.element_id" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="属性名称" label-width="80px" prop="name">
+        <el-form-item label="连接点x" label-width="80px" prop="x">
+          <el-input v-model="editForm.x" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="连接点y" label-width="80px" prop="y">
+          <el-input v-model="editForm.y" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="备注" label-width="80px" prop="name">
           <el-input v-model="editForm.name" auto-complete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="默认值" label-width="80px" prop="value">
-          <el-input v-model="editForm.value" auto-complete="off"></el-input>
-        </el-form-item>
-        <el-form-item label="单位" label-width="80px" prop="unit">
-          <el-input v-model="editForm.unit" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
 
@@ -101,23 +94,23 @@
 <script>
 var id
 var name
-var value
-var eid
-var unit
+// eslint-disable-next-line camelcase,no-unused-vars
+var element_id
+var x
+var y
 export default {
-  name: 'attribute',
-  inject: ['reloadAttribute'],
+  name: 'connection',
+  inject: ['reload'],
   methods: {
     // 关闭弹框
     closeDialog () {
-      this.addEditForm.id = ''
-      this.addEditForm.eid = ''
+      this.addEditForm.element_id = ''
+      this.addEditForm.x = ''
+      this.addEditForm.y = ''
       this.addEditForm.name = ''
-      this.addEditForm.value = ''
-      this.addEditForm.unit = ''
     },
     cancel () {
-      this.reloadAttribute()
+      this.reload()
       // 取消的时候直接设置对话框不可见即可
       this.editFormVisible = false
       this.addFormVisible = false
@@ -125,29 +118,29 @@ export default {
     // 编辑
     handleEdit (row) {
       this.editForm = row
-      id = row.id
-      eid = row.eid
+      // eslint-disable-next-line camelcase
+      element_id = row.element_id
+      x = row.x
+      y = row.y
       name = row.name
-      value = row.value
-      unit = row.unit
       this.editFormVisible = true
     },
     // 删除
     handleDelete (row) {
       var that = this
-      this.$confirm('永久删除此条属性, 是否继续?', '提示', {
+      this.$confirm('永久删除此连接点, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         id = row.id
         that.$axios
-          .post('/graph/deleteAttributes', {
+          .post('/deleteConnection', {
             id: id
           })
           .then((response) => {
             // eslint-disable-next-line eqeqeq
-            if (response.data.code == 0) {
+            if (response.status == 200) {
               that.cancel()
             }
           })
@@ -161,22 +154,23 @@ export default {
         if (valid) {
           var that = this
           id = this.addEditForm.id
-          eid = this.addEditForm.eid
+          // eslint-disable-next-line camelcase
+          element_id = this.addEditForm.element_id
           name = this.addEditForm.name
-          value = this.addEditForm.value
-          unit = this.addEditForm.unit
+          x = this.addEditForm.x
+          y = this.addEditForm.y
           this.$axios
-            .post('/graph/addAttributes', {
+            .post('/addConnection', {
               id: id,
-              eid: eid,
-              name: name,
-              value: value,
-              unit: unit
+              element_id: element_id,
+              x: x,
+              y: y,
+              name: name
             })
             .then((response) => {
               // eslint-disable-next-line eqeqeq
-              if (response.data.code == 0) {
-                that.$message('新增属性成功！')
+              if (response.status == 200) {
+                that.$message('新增连接点成功！')
                 that.cancel()
               }
             })
@@ -190,21 +184,23 @@ export default {
       this.$refs.editForm.validate((valid) => {
         if (valid) {
           var that = this
+          id = this.editForm.id
+          // eslint-disable-next-line camelcase
+          element_id = this.editForm.element_id
+          x = this.editForm.x
+          y = this.editForm.y
           name = this.editForm.name
-          value = this.editForm.value
-          unit = this.editForm.unit
-          eid = this.editForm.eid
           this.$axios
-            .post('/graph/setAttributes', {
+            .post('/setConnection', {
               id: id,
-              eid: eid,
-              name: name,
-              value: value,
-              unit: unit
+              element_id: element_id,
+              x: x,
+              y: y,
+              name: name
             })
             .then((response) => {
               // eslint-disable-next-line eqeqeq
-              if (response.data.code == 0) {
+              if (response.status == 200) {
                 that.cancel()
               }
             })
@@ -263,35 +259,28 @@ export default {
       editFormVisible: false,
       addFormVisible: false,
       editForm: {
-        name: '',
-        eid: '',
-        value: '',
-        unit: ''
+        element_id: '',
+        x: '',
+        y: '',
+        name: ''
       },
       addEditForm: {
         element_id: '',
-        pressure: '',
-        pressure_state: '',
-        load_state: '',
-        loads: '',
-        elevation: ''
+        x: '',
+        y: '',
+        name: ''
       },
       editRules: {
-        name: [
-          { required: true, message: '请输入属性名称', trigger: 'change' }
-        ],
-        eid: [{ required: true, message: '请输入元件id', trigger: 'change' }],
-        value: [{ required: true, message: '请输入默认值', trigger: 'change' }],
-        unit: [{ required: true, message: '请输入单位', trigger: 'change' }]
+        element_id: [{ required: true, message: '请输入元件id', trigger: 'change' }],
+        x: [{ required: true, message: '请输入x', trigger: 'change' }],
+        y: [{ required: true, message: '请输入y', trigger: 'change' }],
+        name: [{ required: true, message: '请输入备注名称', trigger: 'change' }]
       },
       addEditRules: {
-        unit: [{ required: true, message: '请输入单位', trigger: 'change' }],
-        value: [{ required: true, message: '请输入默认值', trigger: 'change' }],
-        name: [
-          { required: true, message: '请输入属性名称', trigger: 'change' }
-        ],
-        eid: [{ required: true, message: '请输入元件id', trigger: 'change' }],
-        id: [{ required: true, message: '请输入属性id', trigger: 'change' }]
+        element_id: [{ required: true, message: '请输入元件id', trigger: 'change' }],
+        x: [{ required: true, message: '请输入x', trigger: 'change' }],
+        y: [{ required: true, message: '请输入y', trigger: 'change' }],
+        name: [{ required: true, message: '请输入备注名称', trigger: 'change' }]
       }
     }
   }

@@ -20,11 +20,11 @@
       style="width: 100%"
     >
       <el-table-column prop="element_id" label="元件id" width="150"></el-table-column>
-      <el-table-column prop="pressure" label="节点压力" width="150"></el-table-column>
-      <el-table-column prop="pressure_state" label="节点压力是否已知" width="150"></el-table-column>
-      <el-table-column prop="loads" label="节点载荷" width="150"></el-table-column>
-      <el-table-column prop="load_state" label="节点载荷是否已知" width="200"></el-table-column>
-      <el-table-column prop="elevation" label="节点海拔" width="200"></el-table-column>
+      <el-table-column prop="pressure" label="压力(MPa)" width="150"></el-table-column>
+      <el-table-column prop="pressure_state" label="压力是否已知" :formatter="formatBoolean" width="150"></el-table-column>
+      <el-table-column prop="loads" label="载荷(Sm³/d)" width="150"></el-table-column>
+      <el-table-column prop="load_state" label="载荷是否已知" :formatter="formatBoolean" width="200"></el-table-column>
+      <el-table-column prop="elevation" label="海拔" width="200"></el-table-column>
       <el-table-column label="操作" width="200pt">
         <template slot-scope="scope">
           <el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
@@ -47,22 +47,22 @@
     <el-dialog title="新增属性" width="30%" :visible.sync="addFormVisible" @close="closeDialog">
       <!-- 在el-dialog中进行嵌套el-form实现弹出表格的效果 -->
       <el-form :rules="addEditRules" :model="addEditForm" ref="addEditForm">
-        <el-form-item label="元件id" label-width="80px" prop="element_id">
+        <el-form-item label="元件id" label-width="100px" prop="element_id">
           <el-input v-model="addEditForm.element_id" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="节点压力" label-width="80px" prop="pressure">
+        <el-form-item label="压力(MPa)" label-width="100px" prop="pressure">
           <el-input v-model="addEditForm.pressure" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="节点压力是否已知" label-width="80px" prop="pressure_state">
+        <el-form-item label="压力是否已知" label-width="100px" prop="pressure_state">
           <el-input v-model="addEditForm.pressure_state" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="节点载荷" label-width="80px" prop="loads">
+        <el-form-item label="载荷(Sm³/d)" label-width="100px" prop="loads">
           <el-input v-model="addEditForm.loads" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="节点载荷是否已知" label-width="80px" prop="load_state">
+        <el-form-item label="载荷是否已知" label-width="100px" prop="load_state">
           <el-input v-model="addEditForm.load_state" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="节点载荷是否已知" label-width="80px" prop="elevation">
+        <el-form-item label="海拔" label-width="100px" prop="elevation">
           <el-input v-model="addEditForm.elevation" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
@@ -107,7 +107,7 @@ var eid
 var unit
 export default {
   name: 'attribute',
-  inject: ['reloadAttribute'],
+  inject: ['reload'],
   methods: {
     // 关闭弹框
     closeDialog () {
@@ -118,7 +118,7 @@ export default {
       this.addEditForm.unit = ''
     },
     cancel () {
-      this.reloadAttribute()
+      this.reload()
       // 取消的时候直接设置对话框不可见即可
       this.editFormVisible = false
       this.addFormVisible = false
@@ -143,12 +143,12 @@ export default {
       }).then(() => {
         id = row.id
         that.$axios
-          .post('/graph/deleteAttributes', {
+          .post('/deleteAttribute', {
             id: id
           })
           .then((response) => {
             // eslint-disable-next-line eqeqeq
-            if (response.data.code == 0) {
+            if (response.status == 200) {
               that.cancel()
             }
           })
@@ -156,6 +156,16 @@ export default {
             console.log(error)
           })
       })
+    },
+    // boolean值格式化
+    formatBoolean: function (row, column, cellValue) {
+      let ret
+      if (cellValue) {
+        ret = '是'
+      } else {
+        ret = '否'
+      }
+      return ret
     },
     addEdit () {
       this.$refs.addEditForm.validate((valid) => {
@@ -176,7 +186,7 @@ export default {
             })
             .then((response) => {
               // eslint-disable-next-line eqeqeq
-              if (response.data.code == 0) {
+              if (response.status == 200) {
                 that.$message('新增属性成功！')
                 that.cancel()
               }
@@ -205,7 +215,7 @@ export default {
             })
             .then((response) => {
               // eslint-disable-next-line eqeqeq
-              if (response.data.code == 0) {
+              if (response.status == 200) {
                 that.cancel()
               }
             })
@@ -278,9 +288,7 @@ export default {
         elevation: ''
       },
       editRules: {
-        name: [
-          { required: true, message: '请输入属性名称', trigger: 'change' }
-        ],
+        name: [{ required: true, message: '请输入属性名称', trigger: 'change' }],
         eid: [{ required: true, message: '请输入元件id', trigger: 'change' }],
         value: [{ required: true, message: '请输入默认值', trigger: 'change' }],
         unit: [{ required: true, message: '请输入单位', trigger: 'change' }]
@@ -288,9 +296,7 @@ export default {
       addEditRules: {
         unit: [{ required: true, message: '请输入单位', trigger: 'change' }],
         value: [{ required: true, message: '请输入默认值', trigger: 'change' }],
-        name: [
-          { required: true, message: '请输入属性名称', trigger: 'change' }
-        ],
+        name: [{ required: true, message: '请输入属性名称', trigger: 'change' }],
         eid: [{ required: true, message: '请输入元件id', trigger: 'change' }],
         id: [{ required: true, message: '请输入属性id', trigger: 'change' }]
       }

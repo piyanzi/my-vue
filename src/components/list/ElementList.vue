@@ -55,9 +55,6 @@
 
       <!-- 在el-dialog中进行嵌套el-form实现弹出表格的效果 -->
       <el-form :rules="addEditRules" :model="addEditForm" ref="addEditForm">
-        <el-form-item label="元件id" label-width="80px" prop="id">
-          <el-input v-model="addEditForm.id" auto-complete="off"></el-input>
-        </el-form-item>
         <el-form-item label="元件名称" label-width="80px" prop="name">
           <el-input v-model="addEditForm.name" auto-complete="off"></el-input>
         </el-form-item>
@@ -95,7 +92,7 @@ var name
 var path
 export default {
   name: 'elements',
-  inject: ['reloadElement'],
+  inject: ['reload'],
   methods: {
     closeDialog () {
       this.addEditForm.id = ''
@@ -136,13 +133,15 @@ export default {
       })
         .then(() => {
           id = row.id
+          path = row.path
           that.$axios.post('/deleteElement',
             {
-              id: id
+              id: id,
+              path: path
             }
           ).then((response) => {
             // eslint-disable-next-line eqeqeq
-            if (response.data.code == 0) {
+            if (response.status == 200) {
               that.cancel()
             }
           })
@@ -152,7 +151,7 @@ export default {
         })
     },
     cancel () {
-      this.reloadElement()
+      this.reload()
       // 取消的时候直接设置对话框不可见即可
       this.editFormVisible = false
       this.addFormVisible = false
@@ -164,7 +163,6 @@ export default {
           id = this.addEditForm.id
           name = this.addEditForm.name
           path = this.addEditForm.path
-          console.log(path)
           // eslint-disable-next-line eqeqeq
           if (path == '') {
             this.$message('请上传svg文件！')
@@ -178,7 +176,7 @@ export default {
             }
           ).then((response) => {
             // eslint-disable-next-line eqeqeq
-            if (response.data.code == 0) {
+            if (response.status == 200) {
               that.$message('上传成功！')
               that.cancel()
             }
@@ -192,15 +190,17 @@ export default {
     update () {
       this.$refs.editForm.validate((valid) => {
         if (valid) {
-          var that = this
           name = this.editForm.name
           this.$axios.post('/setElement',
             {
               id: id,
               name: name
             }
-          ).then(() => {
-            that.cancel()
+          ).then((response) => {
+            // eslint-disable-next-line eqeqeq
+            if (response.status == 200) {
+              this.cancel()
+            }
           })
             .catch(function (error) {
               console.log(error)
@@ -224,7 +224,6 @@ export default {
     getElement () {
       this.$axios.get('/getElements')
         .then((response) => {
-          console.log(response)
           // eslint-disable-next-line eqeqeq
           if (response.status == 200) {
             this.tableForm = response.data.data
@@ -264,8 +263,7 @@ export default {
         name: [{ required: true, message: '请输入元件名称', trigger: 'change' }]
       },
       addEditRules: {
-        name: [{ required: true, message: '请输入元件名称', trigger: 'change' }],
-        id: [{ required: true, message: '请输入元件id', trigger: 'change' }]
+        name: [{ required: true, message: '请输入元件名称', trigger: 'change' }]
       }
     }
   }
