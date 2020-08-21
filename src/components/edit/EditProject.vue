@@ -53,6 +53,15 @@
         <el-form-item label="节点名称" label-width="100px">
           <el-input v-model="node.name"></el-input>
         </el-form-item>
+        <el-form-item label="节点类型" label-width="100px">
+          <el-select v-model="node.elementId" placeholder="请选择节点">
+            <el-option
+              v-for="item in elements"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"></el-option>
+          </el-select>
+        </el-form-item>
         <el-form-item label="节点压力" label-width="100px">
           <el-radio-group v-model="node.pressureState">
             <el-radio :label="true">Fixed</el-radio>
@@ -69,6 +78,12 @@
         </el-form-item>
         <el-form-item label="节点海拔" label-width="100px">
           <el-input v-model="node.elevation"></el-input>
+        </el-form-item>
+        <el-form-item label="横坐标" label-width="100px">
+          <el-input v-model="node.x"></el-input>
+        </el-form-item>
+        <el-form-item label="纵坐标" label-width="100px">
+          <el-input v-model="node.y"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer">
@@ -98,15 +113,18 @@
       </el-tab-pane>
 
       <el-tab-pane label="节点数据" name="nodes">
-        <el-card body-style="width: 761px">
+        <el-card>
           <el-button size="small" type="primary" round @click="createNode">添加节点</el-button>
           <el-table :data="nodes" border stripe>
             <el-table-column label="名称" prop="name" width="120px"></el-table-column>
+            <el-table-column label="元件类型" prop="elementName" width="120px"></el-table-column>
             <el-table-column label="压力(MPa)" prop="pressure" width="100px"></el-table-column>
             <el-table-column label="载荷(Sm³/d)" prop="loads" width="120px"></el-table-column>
             <el-table-column label="压力是否已知" :formatter="formatBoolean" prop="pressureState" width="80px"></el-table-column>
             <el-table-column label="载荷是否已知" :formatter="formatBoolean" prop="loadState" width="80px"></el-table-column>
             <el-table-column label="海拔" prop="elevation" width="80px"></el-table-column>
+            <el-table-column label="横坐标" prop="x" width="80px"></el-table-column>
+            <el-table-column label="纵坐标" prop="y" width="80px"></el-table-column>
             <el-table-column label="操作" flex="right" width="180px">
               <template slot-scope="scope">
                 <el-button size="mini" type="primary" @click="editNode(scope.row.id)">编辑</el-button>
@@ -135,15 +153,17 @@
       </el-tab-pane>
 
       <el-tab-pane label="管道数据" name="pipes">
-        <el-card body-style="width: 861px">
+        <el-card>
           <el-button size="small" type="primary" round @click="createPipe">添加管道</el-button>
           <el-table :data="pipes" border stripe>
-            <el-table-column label="名称" prop="name" width="120px"></el-table-column>s
+            <el-table-column label="名称" prop="name" width="120px"></el-table-column>
             <el-table-column label="起点" prop="startName" width="120px"></el-table-column>
             <el-table-column label="终点" prop="endName" width="120px"></el-table-column>
             <el-table-column label="内径(m)" prop="diameter" width="100px"></el-table-column>
             <el-table-column label="长度(m)" prop="length" width="100px"></el-table-column>
             <el-table-column label="粗糙度(m)" prop="roughness" width="120px"></el-table-column>
+            <el-table-column label="连接起点" prop="startConnectionName" width="80px"></el-table-column>
+            <el-table-column label="连接终点" prop="endConnectionName" width="80px"></el-table-column>
             <el-table-column label="操作" flex="right" width="180px">
               <template slot-scope="scope">
                 <el-button size="mini" type="primary" @click="editPipe(scope.row.id)">编辑</el-button>
@@ -198,12 +218,16 @@ export default {
       node: {
         id: 0,
         projectId: 0,
+        elementId: 0,
+        elementName: '',
         name: '',
         pressure: 0.0,
         loads: 0.0,
         pressureState: false,
         loadState: false,
-        elevation: 0.0
+        elevation: 0.0,
+        x: 0,
+        y: 0
       },
       nodeVisible: false,
       // 管道参数
@@ -217,9 +241,20 @@ export default {
         endName: '',
         diameter: '',
         length: '',
-        roughness: ''
+        roughness: '',
+        startConnection: 0,
+        endConnection: 0,
+        startConnectionName: '',
+        endConnectionName: ''
       },
       pipeVisible: false,
+
+      // 元件信息
+      element: {
+        id: 0,
+        name: ''
+      },
+      elements: [],
 
       // 工程信息
       project: {},
@@ -462,7 +497,20 @@ export default {
         child: '模拟信息',
         path: this.$store.state.activePath.path
       })
+    },
+
+    // 加载时获取元件
+    async getElements () {
+      const { data: res } = await this.$http.get('/getElements')
+      this.elements = res.data
     }
+
+    // // 加载时获取连接点
+    // async getConnections () {
+    //   const { data: res } = await this.$http.get('/getElements')
+    //   this.connections = res.data
+    // }
+
   },
 
   created () {
@@ -474,6 +522,10 @@ export default {
     this.getType()
     // 加载时更改导航
     this.changeMenu()
+    // 加载时获取所有元件信息
+    this.getElements()
+    // // 加载时获取所有连接点信息
+    // this.getConnections()
   }
 }
 </script>

@@ -1000,10 +1000,10 @@ export default {
     // 请求所有elements
     function getElements (graph) {
       _this.$axios
-        .post('/graph/getElements')
+        .get('/getElements')
         .then(function (response) {
-          if (response.data.code == 0) {
-            elementInfo = response.data.elements
+          if (response.status == 200) {
+            elementInfo = response.data.data
             var basePath = 'http://localhost:8081'
             for (var index in elementInfo) {
               curElement = elementInfo[index]
@@ -1016,8 +1016,8 @@ export default {
               center.appendChild(image)
               tbContainer.appendChild(center)
               var type = createElement(curElement.name)
-              getAttributes(graph, curElement.id, type)
-              getConnections(graph, curElement, type)
+              // getAttributes(graph, curElement.id, type)
+              // getConnections(graph, curElement, type)
               customFunct(graph, image, type, curElement.id)
               elementNameCountList[curElement.id] = 1
             }
@@ -1118,7 +1118,7 @@ export default {
       var data = new FormData()
       data.append('id', elementID)
       _this.$axios
-        .post('/graph/getAttributes', {
+        .post('/getAttribute', {
           eid: elementID
         })
         .then(function (response) {
@@ -1144,20 +1144,20 @@ export default {
       var data = new FormData()
       data.append('id', elementID)
       _this.$axios
-        .post('/graph/getConnections', {
-          eid: elementID
+        .post('/findConnectionByEid', {
+          element_id: elementID
         })
         .then(function (response) {
-          if (response.data.code == 0) {
-            var connections = response.data.connections
+          if (response.status == 200) {
+            var connections = response.data.data
             var curConnection = {}
             curConnection.id = elementID
             var connect = []
             for (var index in connections) {
               var temp = connections[index]
               var pair = {}
-              pair.x = temp.cx
-              pair.y = temp.cy
+              pair.x = temp.x
+              pair.y = temp.y
               pair.perimeter = true
               connect.push(pair)
             }
