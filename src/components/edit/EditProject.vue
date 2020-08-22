@@ -217,6 +217,7 @@ export default {
       // 节点参数
       node: {
         id: 0,
+        modelId: 0,
         projectId: 0,
         elementId: 0,
         elementName: '',
@@ -229,11 +230,13 @@ export default {
         x: 0,
         y: 0
       },
+      isNodeCreate: false,
       nodeVisible: false,
       // 管道参数
       pipe: {
         id: 0,
         projectId: 0,
+        modelId: 0,
         startId: 0,
         endId: 0,
         name: '',
@@ -247,6 +250,7 @@ export default {
         startConnectionName: '',
         endConnectionName: ''
       },
+      isPipeCreate: false,
       pipeVisible: false,
 
       // 元件信息
@@ -303,8 +307,9 @@ export default {
         this.pipe[key] = ''
       ))
       this.$set(this.pipe, 'projectId', this.pid)
-      const { data: res } = await this.$http.post('/pipes', this.pipe)
-      this.pipe = res.data
+      this.isPipeCreate = true
+      // const { data: res } = await this.$http.post('/pipes', this.pipe)
+      // this.pipe = res.data
       this.pipeVisible = true
     },
 
@@ -318,13 +323,25 @@ export default {
 
     // 提交管道修改
     async alterPipe () {
-      const { data: res } = await this.$http.put('/pipes', this.pipe)
-      this.pipeVisible = false
-      await this.getPipes(this.pageInfo)
-      if (res.status === 0) {
-        this.$message.success('修改成功！')
+      if (!this.isPipeCreate) {
+        const { data: res } = await this.$http.put('/pipes', this.pipe)
+        this.pipeVisible = false
+        await this.getPipes(this.pageInfo)
+        if (res.status === 0) {
+          this.$message.success('修改成功！')
+        } else {
+          this.$message.error('修改出错！')
+        }
       } else {
-        this.$message.error('修改出错！')
+        this.isPipeCreate = false
+        const { data: res } = await this.$http.post('/pipes', this.pipe)
+        this.pipeVisible = false
+        await this.getPipes(this.pageInfo)
+        if (res.status === 0) {
+          this.$message.success('新建成功！')
+        } else {
+          this.$message.error('新建出错！')
+        }
       }
     },
 
@@ -335,8 +352,9 @@ export default {
         this.node[key] = ''
       ))
       this.$set(this.node, 'projectId', this.pid)
-      const { data: res } = await this.$http.post('/nodes', this.node)
-      this.node = res.data
+      this.isNodeCreate = true
+      // const { data: res } = await this.$http.post('/nodes', this.node)
+      // this.node = res.data
       this.nodeVisible = true
     },
 
@@ -349,13 +367,25 @@ export default {
 
     // 提交节点修改
     async alterNode () {
-      const { data: res } = await this.$http.put('/nodes', this.node)
-      this.nodeVisible = false
-      await this.getNodes(this.pageInfo)
-      if (res.status === 0) {
-        this.$message.success('修改成功！')
+      if (!this.isNodeCreate) {
+        const { data: res } = await this.$http.put('/nodes', this.node)
+        this.nodeVisible = false
+        await this.getNodes(this.pageInfo)
+        if (res.status === 0) {
+          this.$message.success('修改成功！')
+        } else {
+          this.$message.error('修改出错！')
+        }
       } else {
-        this.$message.error('修改出错！')
+        this.isNodeCreate = false
+        const { data: res } = await this.$http.post('/nodes', this.node)
+        this.nodeVisible = false
+        await this.getNodes(this.pageInfo)
+        if (res.status === 0) {
+          this.$message.success('新建成功！')
+        } else {
+          this.$message.error('新建出错！')
+        }
       }
     },
 
