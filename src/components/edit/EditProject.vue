@@ -12,18 +12,32 @@
           <el-input v-model="pipe.name"></el-input>
         </el-form-item>
         <el-form-item label="起始节点">
-          <el-select v-model="pipe.startId" placeholder="请选择节点">
+          <el-select v-model="pipe.startId" @change="selectStart" placeholder="请选择节点">
             <el-option
               v-for="item in nodes"
               :key="item.id"
               :label="item.name"
               :value="item.id"></el-option>
           </el-select>
+          <el-select v-model="pipe.startConnection" placeholder="请选择连接点">
+            <el-option
+              v-for="item in startConnections"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="终止节点">
-          <el-select v-model="pipe.endId" placeholder="请选择节点">
+          <el-select v-model="pipe.endId" @change="selectEnd" placeholder="请选择节点">
             <el-option
               v-for="item in nodes"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"></el-option>
+          </el-select>
+          <el-select v-model="pipe.endConnection" placeholder="请选择连接点">
+            <el-option
+              v-for="item in endConnections"
               :key="item.id"
               :label="item.name"
               :value="item.id"></el-option>
@@ -260,6 +274,15 @@ export default {
       },
       elements: [],
 
+      // 连接点信息
+      connection: {
+        id: 0,
+        name: ''
+      },
+      startConnections: [],
+      endConnections: [],
+      connections: [],
+
       // 工程信息
       project: {},
 
@@ -319,6 +342,8 @@ export default {
       this.pipe = res.data
       this.pipeVisible = true
       await this.getAllNodes()
+      await this.selectStart()
+      await this.selectEnd()
     },
 
     // 提交管道修改
@@ -363,6 +388,37 @@ export default {
       const { data: res } = await this.$http.get('/nodes/' + id)
       this.node = res.data
       this.nodeVisible = true
+    },
+
+    // 获取start_connection
+    async selectStart () {
+      let elementId
+      for (var index in this.nodes) {
+        if (this.nodes[index].id === this.pipe.startId) {
+          elementId = this.nodes[index].elementId
+          break
+        }
+      }
+      const { data: res } = await this.$http.post('/findConnectionByEid', {
+        element_id: elementId
+      })
+      this.startConnections = res.data
+    },
+
+    // 获取end_connection
+    async selectEnd () {
+      let elementId
+      for (var index in this.nodes) {
+        if (this.nodes[index].id === this.pipe.endId) {
+          elementId = this.nodes[index].elementId
+          break
+        }
+      }
+      console.log(elementId)
+      const { data: res } = await this.$http.post('/findConnectionByEid', {
+        element_id: elementId
+      })
+      this.endConnections = res.data
     },
 
     // 提交节点修改
@@ -533,13 +589,13 @@ export default {
     async getElements () {
       const { data: res } = await this.$http.get('/getElements')
       this.elements = res.data
-    }
+    },
 
-    // // 加载时获取连接点
-    // async getConnections () {
-    //   const { data: res } = await this.$http.get('/getElements')
-    //   this.connections = res.data
-    // }
+    // 加载时获取连接点
+    async getConnections () {
+      const { data: res } = await this.$http.get('/getConnection')
+      this.connections = res.data
+    }
 
   },
 
@@ -554,8 +610,8 @@ export default {
     this.changeMenu()
     // 加载时获取所有元件信息
     this.getElements()
-    // // 加载时获取所有连接点信息
-    // this.getConnections()
+    // 加载时获取所有连接点信息
+    this.getConnections()
   }
 }
 </script>

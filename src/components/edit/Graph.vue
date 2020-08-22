@@ -4,7 +4,6 @@
       <div id="headContainer" class="head-container">
         <el-row style="margin-left: 120px">
           <el-button-group>
-            <el-button id="readModel" type="primary" size="small" @click="chooseProject">读取/新建模型</el-button>
             <el-button type="primary" size="small" @click="readModel" icon="el-icon-refresh">刷新模型</el-button>
             <el-button type="primary" size="small" @click="saveModel" icon="el-icon-upload">保存模型</el-button>
           </el-button-group>
@@ -28,9 +27,6 @@
           </el-button-group>
           <el-button-group>
             <el-button type="primary" size="small" @click="checkGraph" icon="el-icon-document-checked">检查项目</el-button>
-          </el-button-group>
-          <el-button-group>
-            <el-button v-if="ifProject" type="danger" size="small" @click="exit">保存并退出</el-button>
           </el-button-group>
         </el-row>
         <el-row style="margin-left: 120px;margin-top: 2px;">
@@ -57,106 +53,99 @@
     <input type="file" id="importXML" @change="handle_file($event)" accept=".xml" style="display: none;"/>
     <input type="file" id="importJSON" @change="handle_file2($event)" accept=".json" style="display: none;"/>
 
-    <el-dialog title="新增元件赋值" :visible.sync="dialogFormVisible" width="50%" @close="closeDialog" center>
-      <el-form ref="form" :model="form" :rules="rules" :inline="true">
-        <el-form-item label="元件名称" label-width="120px" prop="itemName">
-          <el-input v-model="form.itemName" placeholder="请输入元件名称"></el-input>
-        </el-form-item>
-        <div v-for="(item, index) in form.attrs" :key="index">
-          <el-form-item
-            label="属性名"
-            label-width="120px"
-            :prop="'attrs.' + index + '.attrName'"
-            :rules="[
-              {pattern: /^[\u4E00-\u9FA5A-Za-z].*$/, message: '不能以数字或特殊字符开头', trigger: 'change'},
-              {required: true, message: '属性名不能为空', trigger: 'change'}, ]"
-          >
-            <el-input v-model="item.attrName" placeholder="请输入属性名"></el-input>
-          </el-form-item>
-          <el-form-item label="属性值" label-width="120px" :prop="'attrs.' + index + '.attrValue'">
-            <el-input v-model="item.attrValue" placeholder="请输入属性值"></el-input>
-          </el-form-item>
-          <el-form-item label="单位" label-width="120px" :prop="'attrs.' + index + '.attrUnit'">
-            <el-input v-model="item.attrUnit" placeholder="请输入单位"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="delCurAttr(index)"></i>
-          </el-form-item>
-        </div>
-        <div v-for="(item2, index2) in form.connections" :key="'2'+index2">
-          <el-form-item label="横坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.x'"
-                        :rules="[
-              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},
-              {required: true, message: '横坐标不能为空', trigger: 'change'}, ]">
-            <el-input v-model="item2.x" placeholder="请输入横坐标"></el-input>
-          </el-form-item>
-          <el-form-item label="纵坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.y'"
-                        :rules="[
-              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},
-              {required: true, message: '纵坐标不能为空', trigger: 'change'}, ]">
-            <el-input v-model="item2.y" placeholder="请输入纵坐标"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="delCurConnection(index2)"></i>
-          </el-form-item>
-        </div>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button id="addAttr" @click="addAttr">新增属性</el-button>
-        <el-button id="delAttr" @click="delAttr">删除属性</el-button>
-        <el-button id="addConnection" @click="addConnection">新增连接点</el-button>
-        <el-button id="delConnection" @click="delConnection">删除连接点</el-button>
-        <el-button type="primary" @click="addNewElement('form')">提交</el-button>
-      </div>
-    </el-dialog>
+<!--    <el-dialog title="新增元件赋值" :visible.sync="dialogFormVisible" width="50%" @close="closeDialog" center>-->
+<!--      <el-form ref="form" :model="form" :rules="rules" :inline="true">-->
+<!--        <el-form-item label="元件名称" label-width="120px" prop="itemName">-->
+<!--          <el-input v-model="form.itemName" placeholder="请输入元件名称"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <div v-for="(item, index) in form.attrs" :key="index">-->
+<!--          <el-form-item-->
+<!--            label="属性名"-->
+<!--            label-width="120px"-->
+<!--            :prop="'attrs.' + index + '.attrName'"-->
+<!--            :rules="[-->
+<!--              {pattern: /^[\u4E00-\u9FA5A-Za-z].*$/, message: '不能以数字或特殊字符开头', trigger: 'change'},-->
+<!--              {required: true, message: '属性名不能为空', trigger: 'change'}, ]"-->
+<!--          >-->
+<!--            <el-input v-model="item.attrName" placeholder="请输入属性名"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="属性值" label-width="120px" :prop="'attrs.' + index + '.attrValue'">-->
+<!--            <el-input v-model="item.attrValue" placeholder="请输入属性值"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="单位" label-width="120px" :prop="'attrs.' + index + '.attrUnit'">-->
+<!--            <el-input v-model="item.attrUnit" placeholder="请输入单位"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item>-->
+<!--            <i class="el-icon-delete" @click="delCurAttr(index)"></i>-->
+<!--          </el-form-item>-->
+<!--        </div>-->
+<!--        <div v-for="(item2, index2) in form.connections" :key="'2'+index2">-->
+<!--          <el-form-item label="横坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.x'"-->
+<!--                        :rules="[-->
+<!--              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},-->
+<!--              {required: true, message: '横坐标不能为空', trigger: 'change'}, ]">-->
+<!--            <el-input v-model="item2.x" placeholder="请输入横坐标"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="纵坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.y'"-->
+<!--                        :rules="[-->
+<!--              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},-->
+<!--              {required: true, message: '纵坐标不能为空', trigger: 'change'}, ]">-->
+<!--            <el-input v-model="item2.y" placeholder="请输入纵坐标"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item>-->
+<!--            <i class="el-icon-delete" @click="delCurConnection(index2)"></i>-->
+<!--          </el-form-item>-->
+<!--        </div>-->
+<!--      </el-form>-->
+<!--      <div slot="footer" class="dialog-footer">-->
+<!--        <el-button id="addAttr" @click="addAttr">新增属性</el-button>-->
+<!--        <el-button id="delAttr" @click="delAttr">删除属性</el-button>-->
+<!--        <el-button id="addConnection" @click="addConnection">新增连接点</el-button>-->
+<!--        <el-button id="delConnection" @click="delConnection">删除连接点</el-button>-->
+<!--        <el-button type="primary" @click="addNewElement('form')">提交</el-button>-->
+<!--      </div>-->
+<!--    </el-dialog>-->
 
-    <el-dialog title="编辑连接线" :visible.sync="editFormVisible" width="50%" @close="close" center>
-      <el-form ref="editForm" :model="editForm" :rules="editRules" :inline="true">
-        <el-form-item label="连接线名称" label-width="120px" prop="eid">
-          <el-input v-model="editForm.eid" placeholder="请输入连接线名称"></el-input>
-        </el-form-item>
-        <div v-for="(item, index) in editForm.attrs" :key="index">
-          <el-form-item
-            label="属性名"
-            label-width="120px"
-            :prop="'attrs.' + index + '.attrName'"
-            :rules="[
-              {pattern: /^[\u4E00-\u9FA5A-Za-z].*$/, message: '不能以数字或特殊字符开头', trigger: 'change'},
-              {required: true, message: '属性名不能为空', trigger: 'change'}, ]"
-          >
-            <el-input v-model="item.attrName" placeholder="请输入属性名"></el-input>
-          </el-form-item>
-          <el-form-item label="属性值" label-width="120px" :prop="'attrs.' + index + '.attrValue'">
-            <el-input v-model="item.attrValue" placeholder="请输入属性值"></el-input>
-          </el-form-item>
-          <el-form-item label="单位" label-width="120px" :prop="'attrs.' + index + '.attrUnit'">
-            <el-input v-model="item.attrUnit" placeholder="请输入单位"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="delCurEdgeAttr(index)"></i>
-          </el-form-item>
-        </div>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button id="addEdgeAttr" @click="addEdgeAttr">新增属性</el-button>
-        <el-button id="delEdgeAttr" @click="delEdgeAttr">删除属性</el-button>
-        <el-button type="primary" @click="update">提交</el-button>
-      </div>
-    </el-dialog>
-
-    <el-dialog title="打开项目" :visible.sync="projectFormVisible" width="60%" center>
-      <Project v-if="isProjectAlive"></Project>
-    </el-dialog>
+<!--    <el-dialog title="编辑连接线" :visible.sync="editFormVisible" width="50%" @close="close" center>-->
+<!--      <el-form ref="editForm" :model="editForm" :rules="editRules" :inline="true">-->
+<!--        <el-form-item label="连接线名称" label-width="120px" prop="eid">-->
+<!--          <el-input v-model="editForm.eid" placeholder="请输入连接线名称"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <div v-for="(item, index) in editForm.attrs" :key="index">-->
+<!--          <el-form-item-->
+<!--            label="属性名"-->
+<!--            label-width="120px"-->
+<!--            :prop="'attrs.' + index + '.attrName'"-->
+<!--            :rules="[-->
+<!--              {pattern: /^[\u4E00-\u9FA5A-Za-z].*$/, message: '不能以数字或特殊字符开头', trigger: 'change'},-->
+<!--              {required: true, message: '属性名不能为空', trigger: 'change'}, ]"-->
+<!--          >-->
+<!--            <el-input v-model="item.attrName" placeholder="请输入属性名"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="属性值" label-width="120px" :prop="'attrs.' + index + '.attrValue'">-->
+<!--            <el-input v-model="item.attrValue" placeholder="请输入属性值"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="单位" label-width="120px" :prop="'attrs.' + index + '.attrUnit'">-->
+<!--            <el-input v-model="item.attrUnit" placeholder="请输入单位"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item>-->
+<!--            <i class="el-icon-delete" @click="delCurEdgeAttr(index)"></i>-->
+<!--          </el-form-item>-->
+<!--        </div>-->
+<!--      </el-form>-->
+<!--      <div slot="footer" class="dialog-footer">-->
+<!--        <el-button id="addEdgeAttr" @click="addEdgeAttr">新增属性</el-button>-->
+<!--        <el-button id="delEdgeAttr" @click="delEdgeAttr">删除属性</el-button>-->
+<!--        <el-button type="primary" @click="update">提交</el-button>-->
+<!--      </div>-->
+<!--    </el-dialog>-->
 
   </div>
 </template>
 
 <script>
 /* eslint-disable */
-// import Bus from '../assets/Bus.js'
-// import global from '../assets/global'
-// import Project from './Project'
-import {UnionSet} from "../../plugins/UnionSet"
+import {UnionSet} from '../../plugins/UnionSet'
 
 var graph
 var model
@@ -182,7 +171,6 @@ var elementNameCountList = []
 
 export default {
   name: 'graph',
-  // components: { Project },
   data () {
     return {
       form: {
@@ -204,9 +192,6 @@ export default {
       dialogFormVisible: false,
       editFormVisible: false,
       projectFormVisible: false,
-      ifProject: false,
-      isProjectAlive: true,
-      nextProjectId: '',
       editForm: {
         eid: '',
         attrs: []
@@ -222,24 +207,10 @@ export default {
       }
     }
   },
+  created() {
+    this.projectId = this.$route.query.id;
+  },
   methods: {
-    // 选择/新建模型
-    chooseProject () {
-      this.isProjectAlive = false
-      this.$nextTick(() => (this.isProjectAlive = true))
-      this.projectFormVisible = true
-    },
-    // 退出
-    exit () {
-      this.saveModel()
-      this.projectId = ''
-      graph.selectAll()
-      graph.removeCells(graph.getSelectionCells())
-      this.ifProject = false
-      for (let i = 0; i < elementNameCountList.length; ++i) {
-        elementNameCountList[i] = 1
-      }
-    },
     // 关闭Edge
     close () {
       this.editForm.eid = ''
@@ -532,22 +503,6 @@ export default {
         reader.readAsText(file)
       }
     },
-    // 动态新增input
-    addAttr () {
-      this.form.attrs.push({
-        attrName: '',
-        attrValue: '',
-        attrUnit: ''
-      })
-    },
-    // 删除最后一个input
-    delAttr () {
-      this.form.attrs.splice(-1, 1)
-    },
-    // 删除当前input
-    delCurAttr (index) {
-      this.form.attrs.splice(index, 1)
-    },
     // 动态新增connection
     addConnection () {
       this.form.connections.push({
@@ -603,74 +558,19 @@ export default {
       this.form.itemName = ''
       this.form.attrs = []
     },
-    // 动态新增Edgeinput
-    addEdgeAttr () {
-      this.editForm.attrs.push({
-        attrName: '',
-        attrValue: '',
-        attrUnit: ''
-      })
-    },
-    // 删除最后一个Edgeinput
-    delEdgeAttr () {
-      this.editForm.attrs.splice(-1, 1)
-    },
-    // 删除当前Edgeinput
-    delCurEdgeAttr (index) {
-      this.editForm.attrs.splice(index, 1)
-    },
     // 保存模型到服务器
     saveModel () {
       var _this = this
-      if (this.projectId == '') {
-        this.$confirm('快速新建项目, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        })
-          .then(() => {
-            _this.nextProjectId++
-            var id = _this.nextProjectId
-            console.log(id)
-            var uid = global.uid
-            if (uid == 0) {
-              _this.$message('当前用户不存在！')
-              return
-            }
-            var name = '快速新建项目' + id
-            var enc = new mxCodec(mxUtils.createXmlDocument())
-            var node = enc.encode(graph.getModel())
-            var file = mxUtils.getXml(node)
-            _this.$axios.post('/graph/addProjects',
-              {
-                id: id,
-                uid: uid,
-                name: name,
-                path: file
-              }
-            ).then((response) => {
-              if (response.data.code == 0) {
-                _this.$message('上传成功！')
-                _this.projectId = id
-                _this.ifProject = true
-              }
-            })
-              .catch(function (error) {
-                console.log(error)
-              })
-          })
-        return
-      }
       var enc = new mxCodec(mxUtils.createXmlDocument())
       var node = enc.encode(graph.getModel())
       var file = mxUtils.getXml(node)
       this.$axios
-        .post('/graph/saveModel', {
-          id: _this.projectId,
-          file: file
+        .put('/model', {
+          pid: _this.projectId,
+          model: file
         })
         .then(function (response) {
-          if (response.data.code == 0) {
+          if (response.status === 200) {
             _this.$message('保存成功！')
           } else {
             _this.$message('保存模型失败，请重试！')
@@ -684,22 +584,20 @@ export default {
     // 从服务器读取模型
     readModel () {
       var _this = this
-      if (this.projectId == '') {
+      if (this.$route.query.id === '') {
         this.$message('未指定项目，请选择项目后再刷新！')
         return
       }
       this.$axios
-        .post('/graph/getModel', {
-          id: _this.projectId
-        })
+        .post('/model/' + this.$route.query.id)
         .then(function (response) {
-          if (response.data == 'error') {
-            _this.$message('获取模型文件错误，请重试！')
-          } else {
-            var model = mxUtils.parseXml(response.data)
+          if (response.status === 200) {
+            var model = mxUtils.parseXml(response.data.data["model"])
             var dec = new mxCodec(model)
             dec.decode(model.documentElement, graph.getModel())
             _this.$message('模型加载完成！')
+          } else {
+            _this.$message('获取模型文件错误，请重试！')
           }
         })
         .catch(function (error) {
@@ -744,30 +642,9 @@ export default {
   mounted () {
     // 旋转
     mxVertexHandler.prototype.rotationEnabled = true
-    // //连接箭头
-    // mxConnectionHandler.prototype.connectImage = new mxImage("../assets/images/connector.gif", 18, 18);
+
     doc = mxUtils.createXmlDocument()
     var _this = this
-    // vue全局消息响应
-    // Bus.$on('curProjectId', (id) => {
-    //   _this.projectId = id
-    //   _this.projectFormVisible = false
-    //   _this.ifProject = true
-    // })
-    // Bus.$on('loadModel', () => {
-    //   getModel(graph)
-    // })
-    // Bus.$on('user', user => {
-    //   this.curUser = user
-    //   console.log(user)
-    // })
-    // Bus.$on('nextId', id => {
-    //   this.nextProjectId = id
-    // })
-    // Bus.$on('reloadProject', () => {
-    //   this.isProjectAlive = false
-    //   this.$nextTick(() => (this.isProjectAlive = true))
-    // })
 
     tbContainer = document.getElementById('tbContainer')
     container = document.getElementById('container')
@@ -879,7 +756,7 @@ export default {
     // 元件重命名重写
     graph.convertValueToString = function (cell) {
       if (cell.isVertex()) {
-        return cell.getAttribute('名称').slice(0, -2)
+        return cell.getAttribute('名称')
       } else {
         if (cell.value != null) {
           return cell.value.nodeName
@@ -888,7 +765,7 @@ export default {
     }
     graph.cellLabelChanged = function (cell, newValue, autoSize) {
       if (cell.isVertex()) {
-        cell.value.setAttribute('名称', newValue + '<>')
+        cell.value.setAttribute('名称', newValue)
         graph.refresh(cell)
       } else {
         if (cell.value != null) {
@@ -946,21 +823,22 @@ export default {
     graph.getSelectionModel().addListener(mxEvent.CHANGE, function (sender, evt) {
       selectionChanged(graph)
     })
+    getModel(graph);
 
     // 自定义规则
     function judgeConnection (graph) {
-      graph.multiplicities.push(new mxMultiplicity(
-        true, '分输站', null, null, 0, 0, null,
-        '分输站不允许连接到其他元件！',
-        '分输站不允许连接到其他元件！', true))
-      graph.multiplicities.push(new mxMultiplicity(
-        true, '离心压缩机', null, null, 1, 2, ['油库'],
-        '离心压缩机必须指向1或2个油库！',
-        '离心压缩机必须指向油库！', true))
-      graph.multiplicities.push(new mxMultiplicity(
-        false, '站场', null, null, 1, 1, ['油库'],
-        '站场只能有一个来源元件！',
-        '站场不能被油库指向！', false))
+      // graph.multiplicities.push(new mxMultiplicity(
+      //   true, '分输站', null, null, 0, 0, null,
+      //   '分输站不允许连接到其他元件！',
+      //   '分输站不允许连接到其他元件！', true))
+      // graph.multiplicities.push(new mxMultiplicity(
+      //   true, '离心压缩机', null, null, 1, 2, ['油库'],
+      //   '离心压缩机必须指向1或2个油库！',
+      //   '离心压缩机必须指向油库！', true))
+      // graph.multiplicities.push(new mxMultiplicity(
+      //   false, '站场', null, null, 1, 1, ['油库'],
+      //   '站场只能有一个来源元件！',
+      //   '站场不能被油库指向！', false))
     }
 
     // 创建自定义菜单（删除,全选）
@@ -1002,7 +880,7 @@ export default {
       _this.$axios
         .get('/getElements')
         .then(function (response) {
-          if (response.status == 200) {
+          if (response.status === 200) {
             elementInfo = response.data.data
             var basePath = 'http://localhost:8081'
             for (var index in elementInfo) {
@@ -1016,8 +894,8 @@ export default {
               center.appendChild(image)
               tbContainer.appendChild(center)
               var type = createElement(curElement.name)
-              // getAttributes(graph, curElement.id, type)
-              // getConnections(graph, curElement, type)
+              getAttributes(graph, curElement.id, type)
+              getConnections(graph, curElement, type)
               customFunct(graph, image, type, curElement.id)
               elementNameCountList[curElement.id] = 1
             }
@@ -1033,17 +911,21 @@ export default {
 
     // 获取模型文件
     function getModel (graph) {
-      // var data = new FormData();
-      // data.append();
+      if (_this.projectId === '') {
+        _this.$message('未指定项目，请选择项目后再刷新！')
+        return
+      }
       _this.$axios
-        .post('/graph/getModel', {
-          id: _this.projectId
-        })
+        .post('/model/' + _this.projectId)
         .then(function (response) {
-          var model = mxUtils.parseXml(response.data)
-          var dec = new mxCodec(model)
-          dec.decode(model.documentElement, graph.getModel())
-          // _this.$message("模型加载完成！");
+          if (response.status === 200) {
+            var model = mxUtils.parseXml(response.data.data["model"])
+            var dec = new mxCodec(model)
+            dec.decode(model.documentElement, graph.getModel())
+            _this.$message('模型加载完成！')
+          } else {
+            _this.$message('获取模型文件错误，请重试！')
+          }
         })
         .catch(function (error) {
           console.log(error)
@@ -1092,7 +974,7 @@ export default {
       }
       // 根据命名复制类型
       var newType = doc.createElement(type.nodeName)
-      newType.setAttribute('名称', name + '<>')
+      newType.setAttribute('名称', name)
       for (var i = 0; i < type.attributes.length; ++i) {
         newType.setAttribute(type.attributes[i].nodeName, type.attributes[i].nodeValue)
       }
@@ -1115,19 +997,18 @@ export default {
 
     // 根据elementID请求attr
     function getAttributes (graph, elementID, type) {
-      var data = new FormData()
-      data.append('id', elementID)
       _this.$axios
-        .post('/getAttribute', {
-          eid: elementID
+        .post('/findAttributeById', {
+          element_id: elementID
         })
         .then(function (response) {
-          if (response.data.code == 0) {
-            var attributes = response.data.attributes
-            for (var index in attributes) {
-              var temp = attributes[index]
-              type.setAttribute(temp.name, temp.value + '<>' + temp.unit)
-            }
+          if (response.status === 200) {
+            var attributes = response.data.data
+              type.setAttribute("压力", attributes["pressure"])
+              type.setAttribute("载荷", attributes["loads"])
+              type.setAttribute("已知压力", attributes["pressure_state"])
+              type.setAttribute("已知载荷", attributes["load_state"])
+              type.setAttribute("海拔", attributes["elevation"])
           } else {
             _this.$message('获取' + elementID + '号元件属性错误，请重试！')
           }
@@ -1141,14 +1022,12 @@ export default {
     // 根据elementID请求connection
     function getConnections (graph, curElement, type) {
       var elementID = curElement.id
-      var data = new FormData()
-      data.append('id', elementID)
       _this.$axios
         .post('/findConnectionByEid', {
           element_id: elementID
         })
         .then(function (response) {
-          if (response.status == 200) {
+          if (response.status === 200) {
             var connections = response.data.data
             var curConnection = {}
             curConnection.id = elementID
@@ -1283,7 +1162,6 @@ export default {
     // 动态新增右侧文本框
     function createTextField (graph, form, cell, attribute) {
       var tr = document.createElement('tr')
-      var values = attribute.nodeValue.split('<>')
       var name = document.createElement('td')
       name.innerText = attribute.nodeName + ':'
       tr.appendChild(name)
@@ -1291,20 +1169,31 @@ export default {
       var input = document.createElement('input')
       input.type = 'text'
       input.style = 'width: 130px;'
-      input.value = values[0]
+      input.value = attribute.nodeValue
       tdInput.appendChild(input)
       tr.appendChild(tdInput)
       var unit = document.createElement('td')
-      unit.innerText = values[1]
+      if(attribute.nodeName === "压力") {
+        unit.innerText = "MPa"
+      }
+      else if(attribute.nodeName === "载荷") {
+        unit.innerText = "Sm³/d"
+      }
+      else if(attribute.nodeName === "海拔") {
+        unit.innerText = "m"
+      }
+      else {
+        unit.innerText = ""
+      }
       tr.appendChild(unit)
       form.appendChild(tr)
       var applyHandler = function () {
         var newValue = input.value || ''
         var oldValue = cell.getAttribute(attribute.nodeName, '')
-        if (newValue != oldValue) {
+        if (newValue !== oldValue) {
           graph.getModel().beginUpdate()
           try {
-            cell.setAttribute(attribute.nodeName, newValue + '<>' + values[1])
+            cell.setAttribute(attribute.nodeName, newValue)
             graph.refresh()
           } finally {
             graph.getModel().endUpdate()
@@ -1312,7 +1201,7 @@ export default {
         }
       }
       mxEvent.addListener(input, 'keypress', function (evt) {
-        if (evt.keyCode == /* enter */ 13 && !mxEvent.isShiftDown(evt)) {
+        if (evt.keyCode === /* enter */ 13 && !mxEvent.isShiftDown(evt)) {
           input.blur()
         }
       })
