@@ -54,7 +54,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button @click="pipeVisible = false">取消</el-button>
+        <el-button @click="pipeVisible = false;isPipeCreate = false">取消</el-button>
         <el-button @click="alterPipe">确定</el-button>
       </span>
     </el-dialog>
@@ -259,8 +259,8 @@ export default {
         diameter: '',
         length: '',
         roughness: '',
-        startConnection: 0,
-        endConnection: 0,
+        startConnection: '',
+        endConnection: '',
         startConnectionName: '',
         endConnectionName: ''
       },
@@ -406,6 +406,9 @@ export default {
         element_id: elementId
       })
       this.startConnections = res.data
+      if (this.isPipeCreate) {
+        this.pipe.startConnection = ''
+      }
     },
 
     // 获取end_connection
@@ -422,6 +425,9 @@ export default {
         element_id: elementId
       })
       this.endConnections = res.data
+      if (this.isPipeCreate) {
+        this.pipe.endConnection = ''
+      }
     },
 
     // 提交节点修改
