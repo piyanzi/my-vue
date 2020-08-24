@@ -101,7 +101,7 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button @click="nodeVisible = false">取消</el-button>
+        <el-button @click="nodeVisible = false;isNodeCreate = false">取消</el-button>
         <el-button @click="alterNode">确定</el-button>
       </span>
     </el-dialog>
