@@ -331,6 +331,7 @@ export default {
       ))
       this.$set(this.pipe, 'projectId', this.pid)
       this.isPipeCreate = true
+      await this.getAllNodes()
       // const { data: res } = await this.$http.post('/pipes', this.pipe)
       // this.pipe = res.data
       this.pipeVisible = true
@@ -378,6 +379,7 @@ export default {
       ))
       this.$set(this.node, 'projectId', this.pid)
       this.isNodeCreate = true
+      await this.getElements()
       // const { data: res } = await this.$http.post('/nodes', this.node)
       // this.node = res.data
       this.nodeVisible = true
@@ -387,6 +389,7 @@ export default {
     async editNode (id) {
       const { data: res } = await this.$http.get('/nodes/' + id)
       this.node = res.data
+      await this.getElements()
       this.nodeVisible = true
     },
 
