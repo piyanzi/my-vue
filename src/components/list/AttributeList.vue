@@ -47,22 +47,28 @@
     <el-dialog title="新增属性" width="30%" :visible.sync="addFormVisible" @close="closeDialog">
       <!-- 在el-dialog中进行嵌套el-form实现弹出表格的效果 -->
       <el-form :rules="addEditRules" :model="addEditForm" ref="addEditForm">
-        <el-form-item label="元件id" label-width="100px" prop="element_id">
+        <el-form-item label="元件id" label-width="120px" prop="element_id">
           <el-input v-model="addEditForm.element_id" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="压力(MPa)" label-width="100px" prop="pressure">
+        <el-form-item label="压力(MPa)" label-width="120px" prop="pressure">
           <el-input v-model="addEditForm.pressure" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="压力是否已知" label-width="100px" prop="pressure_state">
-          <el-input v-model="addEditForm.pressure_state" auto-complete="off"></el-input>
+        <el-form-item label="压力是否已知" label-width="120px">
+          <el-radio-group v-model="addEditForm.pressure_state">
+            <el-radio :label="true">Fixed</el-radio>
+            <el-radio :label="false">Estimated</el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="载荷(Sm³/d)" label-width="100px" prop="loads">
+        <el-form-item label="载荷(Sm³/d)" label-width="120px" prop="loads">
           <el-input v-model="addEditForm.loads" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="载荷是否已知" label-width="100px" prop="load_state">
-          <el-input v-model="addEditForm.load_state" auto-complete="off"></el-input>
+        <el-form-item label="载荷是否已知" label-width="120px">
+          <el-radio-group v-model="addEditForm.load_state">
+            <el-radio :label="true">Fixed</el-radio>
+            <el-radio :label="false">Estimated</el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="海拔" label-width="100px" prop="elevation">
+        <el-form-item label="海拔" label-width="120px" prop="elevation">
           <el-input v-model="addEditForm.elevation" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
@@ -76,17 +82,26 @@
     <el-dialog title="编辑" width="30%" :visible.sync="editFormVisible">
       <!-- 在el-dialog中进行嵌套el-form实现弹出表格的效果 -->
       <el-form :rules="editRules" :model="editForm" ref="editForm">
-        <el-form-item label="元件id" label-width="80px" prop="eid">
-          <el-input v-model="editForm.eid" auto-complete="off"></el-input>
+        <el-form-item label="压力(MPa)" label-width="120px" prop="pressure">
+          <el-input v-model="editForm.pressure" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="属性名称" label-width="80px" prop="name">
-          <el-input v-model="editForm.name" auto-complete="off"></el-input>
+        <el-form-item label="压力是否已知" label-width="120px">
+          <el-radio-group v-model="editForm.pressure_state">
+            <el-radio :label="true">Fixed</el-radio>
+            <el-radio :label="false">Estimated</el-radio>
+          </el-radio-group>
         </el-form-item>
-        <el-form-item label="默认值" label-width="80px" prop="value">
-          <el-input v-model="editForm.value" auto-complete="off"></el-input>
+        <el-form-item label="载荷(Sm³/d)" label-width="120px" prop="loads">
+          <el-input v-model="editForm.loads" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="单位" label-width="80px" prop="unit">
-          <el-input v-model="editForm.unit" auto-complete="off"></el-input>
+        <el-form-item label="载荷是否已知" label-width="120px">
+          <el-radio-group v-model="editForm.load_state">
+            <el-radio :label="true">Fixed</el-radio>
+            <el-radio :label="false">Estimated</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="海拔" label-width="120px" prop="elevation">
+          <el-input v-model="editForm.elevation" auto-complete="off"></el-input>
         </el-form-item>
       </el-form>
 
@@ -100,22 +115,27 @@
 </template>
 
 <script>
-var id
-var name
-var value
-var eid
-var unit
+// eslint-disable-next-line camelcase
+var element_id
+var pressure
+// eslint-disable-next-line camelcase
+var pressure_state
+var loads
+// eslint-disable-next-line camelcase
+var load_state
+var elevation
 export default {
   name: 'attribute',
   inject: ['reload'],
   methods: {
     // 关闭弹框
     closeDialog () {
-      this.addEditForm.id = ''
-      this.addEditForm.eid = ''
-      this.addEditForm.name = ''
-      this.addEditForm.value = ''
-      this.addEditForm.unit = ''
+      this.addEditForm.element_id = ''
+      this.addEditForm.pressure = ''
+      this.addEditForm.pressure_state = ''
+      this.addEditForm.loads = ''
+      this.addEditForm.load_state = ''
+      this.addEditForm.elevation = ''
     },
     cancel () {
       this.reload()
@@ -126,11 +146,15 @@ export default {
     // 编辑
     handleEdit (row) {
       this.editForm = row
-      id = row.id
-      eid = row.eid
-      name = row.name
-      value = row.value
-      unit = row.unit
+      // eslint-disable-next-line camelcase
+      element_id = row.element_id
+      pressure = row.pressure
+      // eslint-disable-next-line camelcase
+      pressure_state = row.pressure_state
+      loads = row.loads
+      // eslint-disable-next-line camelcase
+      load_state = row.load_state
+      elevation = row.elevation
       this.editFormVisible = true
     },
     // 删除
@@ -141,10 +165,11 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        id = row.id
+        // eslint-disable-next-line camelcase
+        element_id = row.element_id
         that.$axios
           .post('/deleteAttribute', {
-            id: id
+            element_id: element_id
           })
           .then((response) => {
             // eslint-disable-next-line eqeqeq
@@ -171,22 +196,30 @@ export default {
       this.$refs.addEditForm.validate((valid) => {
         if (valid) {
           var that = this
-          id = this.addEditForm.id
-          eid = this.addEditForm.eid
-          name = this.addEditForm.name
-          value = this.addEditForm.value
-          unit = this.addEditForm.unit
+          // eslint-disable-next-line camelcase
+          element_id = this.addEditForm.element_id
+          pressure = this.addEditForm.pressure
+          // eslint-disable-next-line camelcase
+          pressure_state = this.addEditForm.pressure_state
+          loads = this.addEditForm.loads
+          // eslint-disable-next-line camelcase
+          load_state = this.addEditForm.load_state
+          elevation = this.addEditForm.elevation
+          console.log(pressure_state)
+          console.log(load_state)
           this.$axios
-            .post('/graph/addAttributes', {
-              id: id,
-              eid: eid,
-              name: name,
-              value: value,
-              unit: unit
+            .post('/addAttribute', {
+              element_id: element_id,
+              pressure: pressure,
+              pressure_state: pressure_state,
+              loads: loads,
+              load_state: load_state,
+              elevation: elevation
             })
             .then((response) => {
               // eslint-disable-next-line eqeqeq
               if (response.status == 200) {
+                console.log(pressure_state)
                 that.$message('新增属性成功！')
                 that.cancel()
               }
@@ -201,17 +234,25 @@ export default {
       this.$refs.editForm.validate((valid) => {
         if (valid) {
           var that = this
-          name = this.editForm.name
-          value = this.editForm.value
-          unit = this.editForm.unit
-          eid = this.editForm.eid
+          // eslint-disable-next-line camelcase
+          element_id = this.editForm.element_id
+          pressure = this.editForm.pressure
+          // eslint-disable-next-line camelcase
+          pressure_state = this.editForm.pressure_state
+          loads = this.editForm.loads
+          // eslint-disable-next-line camelcase
+          load_state = this.editForm.load_state
+          elevation = this.editForm.elevation
+          console.log(pressure_state)
+          console.log(load_state)
           this.$axios
-            .post('/graph/setAttributes', {
-              id: id,
-              eid: eid,
-              name: name,
-              value: value,
-              unit: unit
+            .post('/setAttribute', {
+              element_id: element_id,
+              pressure: pressure,
+              pressure_state: pressure_state,
+              loads: loads,
+              load_state: load_state,
+              elevation: elevation
             })
             .then((response) => {
               // eslint-disable-next-line eqeqeq
@@ -274,31 +315,35 @@ export default {
       editFormVisible: false,
       addFormVisible: false,
       editForm: {
-        name: '',
-        eid: '',
-        value: '',
-        unit: ''
+        element_id: 0,
+        pressure: 0.0,
+        pressure_state: false,
+        loads: 0.0,
+        load_state: false,
+        elevation: 0.0
       },
       addEditForm: {
         element_id: '',
         pressure: '',
-        pressure_state: '',
-        load_state: '',
+        pressure_state: true,
         loads: '',
+        load_state: true,
         elevation: ''
       },
       editRules: {
-        name: [{ required: true, message: '请输入属性名称', trigger: 'change' }],
-        eid: [{ required: true, message: '请输入元件id', trigger: 'change' }],
-        value: [{ required: true, message: '请输入默认值', trigger: 'change' }],
-        unit: [{ required: true, message: '请输入单位', trigger: 'change' }]
+        pressure: [{ required: true, message: '请输入压力', trigger: 'change' }],
+        pressure_state: [{ required: true, message: '请选择压力状态', trigger: 'change' }],
+        loads: [{ required: true, message: '请输入载荷', trigger: 'change' }],
+        load_state: [{ required: true, message: '请选择载荷状态', trigger: 'change' }],
+        elevation: [{ required: true, message: '请输入海拔', trigger: 'change' }]
       },
       addEditRules: {
-        unit: [{ required: true, message: '请输入单位', trigger: 'change' }],
-        value: [{ required: true, message: '请输入默认值', trigger: 'change' }],
-        name: [{ required: true, message: '请输入属性名称', trigger: 'change' }],
-        eid: [{ required: true, message: '请输入元件id', trigger: 'change' }],
-        id: [{ required: true, message: '请输入属性id', trigger: 'change' }]
+        element_id: [{ required: true, message: '请输入元件id', trigger: 'change' }],
+        pressure: [{ required: true, message: '请输入压力', trigger: 'change' }],
+        pressure_state: [{ required: true, message: '请选择压力状态', trigger: 'change' }],
+        loads: [{ required: true, message: '请输入载荷', trigger: 'change' }],
+        load_state: [{ required: true, message: '请选择载荷状态', trigger: 'change' }],
+        elevation: [{ required: true, message: '请输入海拔', trigger: 'change' }]
       }
     }
   }
