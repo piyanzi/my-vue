@@ -53,52 +53,52 @@
     <input type="file" id="importXML" @change="handle_file($event)" accept=".xml" style="display: none;"/>
     <input type="file" id="importJSON" @change="handle_file2($event)" accept=".json" style="display: none;"/>
 
-    <el-dialog title="新增元件赋值" :visible.sync="dialogFormVisible" width="40%" @close="closeDialog" center>
-      <el-form ref="form" :model="form" :rules="rules" :inline="true">
-        <el-form-item label="元件名称" label-width="120px" prop="itemName">
-          <el-input v-model="form.itemName" placeholder="请输入元件名称" style="width: 376.48px"></el-input>
-        </el-form-item>
-        <el-form-item label="压力(MPa)" label-width="120px" prop="pressure">
-          <el-radio-group v-model="form.pressureState">
-            <el-radio :label="true">Fixed</el-radio>
-            <el-radio :label="false">Estimated</el-radio>
-          </el-radio-group>
-          <el-input v-model="form.pressure" placeholder="请输入压力"></el-input>
-        </el-form-item>
-        <el-form-item label="载荷(Sm³/d)" label-width="120px" prop="loads">
-          <el-radio-group v-model="form.loadState">
-            <el-radio :label="true">Fixed</el-radio>
-            <el-radio :label="false">Estimated</el-radio>
-          </el-radio-group>
-          <el-input v-model="form.loads" placeholder="请输入载荷"></el-input>
-        </el-form-item>
-        <el-form-item label="海拔" label-width="120px" prop="elevation">
-          <el-input v-model="form.elevation" placeholder="请输入海拔" style="width: 376.48px"></el-input>
-        </el-form-item>
-        <div v-for="(item2, index2) in form.connections" :key="'2'+index2">
-          <el-form-item label="横坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.x'"
-                        :rules="[
-              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},
-              {required: true, message: '横坐标不能为空', trigger: 'change'}, ]">
-            <el-input v-model="item2.x" placeholder="请输入横坐标"></el-input>
-          </el-form-item>
-          <el-form-item label="纵坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.y'"
-                        :rules="[
-              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},
-              {required: true, message: '纵坐标不能为空', trigger: 'change'}, ]">
-            <el-input v-model="item2.y" placeholder="请输入纵坐标"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <i class="el-icon-delete" @click="delCurConnection(index2)"></i>
-          </el-form-item>
-        </div>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button id="addConnection" @click="addConnection">新增连接点</el-button>
-        <el-button id="delConnection" @click="delConnection">删除连接点</el-button>
-        <el-button type="primary" @click="addNewElement('form')">提交</el-button>
-      </div>
-    </el-dialog>
+<!--    <el-dialog title="新增元件赋值" :visible.sync="dialogFormVisible" width="40%" @close="closeDialog" center>-->
+<!--      <el-form ref="form" :model="form" :rules="rules" :inline="true">-->
+<!--        <el-form-item label="元件名称" label-width="120px" prop="itemName">-->
+<!--          <el-input v-model="form.itemName" placeholder="请输入元件名称" style="width: 376.48px"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="压力(MPa)" label-width="120px" prop="pressure">-->
+<!--          <el-radio-group v-model="form.pressureState">-->
+<!--            <el-radio :label="true">Fixed</el-radio>-->
+<!--            <el-radio :label="false">Estimated</el-radio>-->
+<!--          </el-radio-group>-->
+<!--          <el-input v-model="form.pressure" placeholder="请输入压力"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="载荷(Sm³/d)" label-width="120px" prop="loads">-->
+<!--          <el-radio-group v-model="form.loadState">-->
+<!--            <el-radio :label="true">Fixed</el-radio>-->
+<!--            <el-radio :label="false">Estimated</el-radio>-->
+<!--          </el-radio-group>-->
+<!--          <el-input v-model="form.loads" placeholder="请输入载荷"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <el-form-item label="海拔" label-width="120px" prop="elevation">-->
+<!--          <el-input v-model="form.elevation" placeholder="请输入海拔" style="width: 376.48px"></el-input>-->
+<!--        </el-form-item>-->
+<!--        <div v-for="(item2, index2) in form.connections" :key="'2'+index2">-->
+<!--          <el-form-item label="横坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.x'"-->
+<!--                        :rules="[-->
+<!--              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},-->
+<!--              {required: true, message: '横坐标不能为空', trigger: 'change'}, ]">-->
+<!--            <el-input v-model="item2.x" placeholder="请输入横坐标"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="纵坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.y'"-->
+<!--                        :rules="[-->
+<!--              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},-->
+<!--              {required: true, message: '纵坐标不能为空', trigger: 'change'}, ]">-->
+<!--            <el-input v-model="item2.y" placeholder="请输入纵坐标"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item>-->
+<!--            <i class="el-icon-delete" @click="delCurConnection(index2)"></i>-->
+<!--          </el-form-item>-->
+<!--        </div>-->
+<!--      </el-form>-->
+<!--      <div slot="footer" class="dialog-footer">-->
+<!--        <el-button id="addConnection" @click="addConnection">新增连接点</el-button>-->
+<!--        <el-button id="delConnection" @click="delConnection">删除连接点</el-button>-->
+<!--        <el-button type="primary" @click="addNewElement('form')">提交</el-button>-->
+<!--      </div>-->
+<!--    </el-dialog>-->
 
     <el-dialog title="编辑连接线" :visible.sync="editFormVisible" width="30%" @close="close" center>
       <el-form ref="editForm" :model="editForm" :rules="editRules">
