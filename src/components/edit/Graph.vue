@@ -53,92 +53,72 @@
     <input type="file" id="importXML" @change="handle_file($event)" accept=".xml" style="display: none;"/>
     <input type="file" id="importJSON" @change="handle_file2($event)" accept=".json" style="display: none;"/>
 
-<!--    <el-dialog title="新增元件赋值" :visible.sync="dialogFormVisible" width="50%" @close="closeDialog" center>-->
-<!--      <el-form ref="form" :model="form" :rules="rules" :inline="true">-->
-<!--        <el-form-item label="元件名称" label-width="120px" prop="itemName">-->
-<!--          <el-input v-model="form.itemName" placeholder="请输入元件名称"></el-input>-->
-<!--        </el-form-item>-->
-<!--        <div v-for="(item, index) in form.attrs" :key="index">-->
-<!--          <el-form-item-->
-<!--            label="属性名"-->
-<!--            label-width="120px"-->
-<!--            :prop="'attrs.' + index + '.attrName'"-->
-<!--            :rules="[-->
-<!--              {pattern: /^[\u4E00-\u9FA5A-Za-z].*$/, message: '不能以数字或特殊字符开头', trigger: 'change'},-->
-<!--              {required: true, message: '属性名不能为空', trigger: 'change'}, ]"-->
-<!--          >-->
-<!--            <el-input v-model="item.attrName" placeholder="请输入属性名"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="属性值" label-width="120px" :prop="'attrs.' + index + '.attrValue'">-->
-<!--            <el-input v-model="item.attrValue" placeholder="请输入属性值"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="单位" label-width="120px" :prop="'attrs.' + index + '.attrUnit'">-->
-<!--            <el-input v-model="item.attrUnit" placeholder="请输入单位"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item>-->
-<!--            <i class="el-icon-delete" @click="delCurAttr(index)"></i>-->
-<!--          </el-form-item>-->
-<!--        </div>-->
-<!--        <div v-for="(item2, index2) in form.connections" :key="'2'+index2">-->
-<!--          <el-form-item label="横坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.x'"-->
-<!--                        :rules="[-->
-<!--              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},-->
-<!--              {required: true, message: '横坐标不能为空', trigger: 'change'}, ]">-->
-<!--            <el-input v-model="item2.x" placeholder="请输入横坐标"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="纵坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.y'"-->
-<!--                        :rules="[-->
-<!--              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},-->
-<!--              {required: true, message: '纵坐标不能为空', trigger: 'change'}, ]">-->
-<!--            <el-input v-model="item2.y" placeholder="请输入纵坐标"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item>-->
-<!--            <i class="el-icon-delete" @click="delCurConnection(index2)"></i>-->
-<!--          </el-form-item>-->
-<!--        </div>-->
-<!--      </el-form>-->
-<!--      <div slot="footer" class="dialog-footer">-->
-<!--        <el-button id="addAttr" @click="addAttr">新增属性</el-button>-->
-<!--        <el-button id="delAttr" @click="delAttr">删除属性</el-button>-->
-<!--        <el-button id="addConnection" @click="addConnection">新增连接点</el-button>-->
-<!--        <el-button id="delConnection" @click="delConnection">删除连接点</el-button>-->
-<!--        <el-button type="primary" @click="addNewElement('form')">提交</el-button>-->
-<!--      </div>-->
-<!--    </el-dialog>-->
+    <el-dialog title="新增元件赋值" :visible.sync="dialogFormVisible" width="40%" @close="closeDialog" center>
+      <el-form ref="form" :model="form" :rules="rules" :inline="true">
+        <el-form-item label="元件名称" label-width="120px" prop="itemName">
+          <el-input v-model="form.itemName" placeholder="请输入元件名称" style="width: 376.48px"></el-input>
+        </el-form-item>
+        <el-form-item label="压力(MPa)" label-width="120px" prop="pressure">
+          <el-radio-group v-model="form.pressureState">
+            <el-radio :label="true">Fixed</el-radio>
+            <el-radio :label="false">Estimated</el-radio>
+          </el-radio-group>
+          <el-input v-model="form.pressure" placeholder="请输入压力"></el-input>
+        </el-form-item>
+        <el-form-item label="载荷(Sm³/d)" label-width="120px" prop="loads">
+          <el-radio-group v-model="form.loadState">
+            <el-radio :label="true">Fixed</el-radio>
+            <el-radio :label="false">Estimated</el-radio>
+          </el-radio-group>
+          <el-input v-model="form.loads" placeholder="请输入载荷"></el-input>
+        </el-form-item>
+        <el-form-item label="海拔" label-width="120px" prop="elevation">
+          <el-input v-model="form.elevation" placeholder="请输入海拔" style="width: 376.48px"></el-input>
+        </el-form-item>
+        <div v-for="(item2, index2) in form.connections" :key="'2'+index2">
+          <el-form-item label="横坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.x'"
+                        :rules="[
+              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},
+              {required: true, message: '横坐标不能为空', trigger: 'change'}, ]">
+            <el-input v-model="item2.x" placeholder="请输入横坐标"></el-input>
+          </el-form-item>
+          <el-form-item label="纵坐标0-1" label-width="120px" :prop="'connections.' + index2 + '.y'"
+                        :rules="[
+              {pattern: /^(1|0(\.\d{1,2})?)$/, message: '请输入0-1之间的两位小数', trigger: 'change'},
+              {required: true, message: '纵坐标不能为空', trigger: 'change'}, ]">
+            <el-input v-model="item2.y" placeholder="请输入纵坐标"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <i class="el-icon-delete" @click="delCurConnection(index2)"></i>
+          </el-form-item>
+        </div>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button id="addConnection" @click="addConnection">新增连接点</el-button>
+        <el-button id="delConnection" @click="delConnection">删除连接点</el-button>
+        <el-button type="primary" @click="addNewElement('form')">提交</el-button>
+      </div>
+    </el-dialog>
 
-<!--    <el-dialog title="编辑连接线" :visible.sync="editFormVisible" width="50%" @close="close" center>-->
-<!--      <el-form ref="editForm" :model="editForm" :rules="editRules" :inline="true">-->
-<!--        <el-form-item label="连接线名称" label-width="120px" prop="eid">-->
-<!--          <el-input v-model="editForm.eid" placeholder="请输入连接线名称"></el-input>-->
-<!--        </el-form-item>-->
-<!--        <div v-for="(item, index) in editForm.attrs" :key="index">-->
-<!--          <el-form-item-->
-<!--            label="属性名"-->
-<!--            label-width="120px"-->
-<!--            :prop="'attrs.' + index + '.attrName'"-->
-<!--            :rules="[-->
-<!--              {pattern: /^[\u4E00-\u9FA5A-Za-z].*$/, message: '不能以数字或特殊字符开头', trigger: 'change'},-->
-<!--              {required: true, message: '属性名不能为空', trigger: 'change'}, ]"-->
-<!--          >-->
-<!--            <el-input v-model="item.attrName" placeholder="请输入属性名"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="属性值" label-width="120px" :prop="'attrs.' + index + '.attrValue'">-->
-<!--            <el-input v-model="item.attrValue" placeholder="请输入属性值"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item label="单位" label-width="120px" :prop="'attrs.' + index + '.attrUnit'">-->
-<!--            <el-input v-model="item.attrUnit" placeholder="请输入单位"></el-input>-->
-<!--          </el-form-item>-->
-<!--          <el-form-item>-->
-<!--            <i class="el-icon-delete" @click="delCurEdgeAttr(index)"></i>-->
-<!--          </el-form-item>-->
-<!--        </div>-->
-<!--      </el-form>-->
-<!--      <div slot="footer" class="dialog-footer">-->
-<!--        <el-button id="addEdgeAttr" @click="addEdgeAttr">新增属性</el-button>-->
-<!--        <el-button id="delEdgeAttr" @click="delEdgeAttr">删除属性</el-button>-->
-<!--        <el-button type="primary" @click="update">提交</el-button>-->
-<!--      </div>-->
-<!--    </el-dialog>-->
+    <el-dialog title="编辑连接线" :visible.sync="editFormVisible" width="30%" @close="close" center>
+      <el-form ref="editForm" :model="editForm" :rules="editRules">
+        <el-form-item label="连接线名称" label-width="120px" prop="eid">
+          <el-input v-model="editForm.eid" placeholder="请输入连接线名称"></el-input>
+        </el-form-item>
+        <el-form-item label="内径(m)" label-width="120px" prop="diameter">
+          <el-input v-model="editForm.diameter" placeholder="请输入内径"></el-input>
+        </el-form-item>
+        <el-form-item label="长度(m)" label-width="120px" prop="length">
+          <el-input v-model="editForm.length" placeholder="请输入长度"></el-input>
+        </el-form-item>
+        <el-form-item label="粗糙度(m)" label-width="120px" prop="roughness">
+          <el-input v-model="editForm.roughness" placeholder="请输入粗糙度"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="update">提交</el-button>
+      </div>
+    </el-dialog>
 
   </div>
 </template>
@@ -175,7 +155,11 @@ export default {
     return {
       form: {
         itemName: '',
-        attrs: [],
+        pressure: '',
+        loads: '',
+        pressureState: '',
+        loadState: '',
+        elevation: '',
         connections: []
       },
       projectId: '',
@@ -191,10 +175,11 @@ export default {
       },
       dialogFormVisible: false,
       editFormVisible: false,
-      projectFormVisible: false,
       editForm: {
         eid: '',
-        attrs: []
+        diameter: '',
+        length: '',
+        roughness: ''
       },
       editRules: {
         eid: [
@@ -214,26 +199,37 @@ export default {
     // 关闭Edge
     close () {
       this.editForm.eid = ''
-      this.editForm.attrs = []
+      this.editForm.diameter = 0
+      this.editForm.length = 0
+      this.editForm.roughness = 0
+      var cell2 = graph.getSelectionCell()
+      if(cell2.value === null) {
+        var list = []
+        list.push(cell2)
+        graph.removeCells(list)
+      }
+
     },
     // 更新Edge
     update () {
       this.$refs.editForm.validate((valid) => {
         if (valid) {
-          var cell2 = graph.getSelectionCell()
           var doc = mxUtils.createXmlDocument()
-          var node = doc.createElement(this.editForm.eid)
-          for (var index in this.editForm.attrs) {
-            node.setAttribute(
-              this.editForm.attrs[index].attrName,
-              this.editForm.attrs[index].attrValue + '<>' + this.editForm.attrs[index].attrUnit
-            )
+          var type = doc.createElement(this.editForm.eid)
+          type.setAttribute("内径", this.editForm.diameter)
+          type.setAttribute("长度", this.editForm.length)
+          type.setAttribute("粗糙度", this.editForm.roughness)
+          var cell2 = graph.getSelectionCell()
+          console.log(cell2)
+          if (cell2 !== null) {
+            cell2.setValue(type)
+            graph.refresh(cell2)
           }
-          cell2.setValue(node)
-          graph.refresh(cell2)
           this.editFormVisible = false
           this.editForm.eid = ''
-          this.editForm.attrs = []
+          this.editForm.diameter = 0
+          this.editForm.length = 0
+          this.editForm.roughness = 0
         }
       })
     },
@@ -526,12 +522,11 @@ export default {
           var eid = elementNameCountList.length
           console.log(eid)
           elementNameCountList[eid] = 1
-          for (var index in this.form.attrs) {
-            type.setAttribute(
-              this.form.attrs[index].attrName,
-              this.form.attrs[index].attrValue + '<>' + this.form.attrs[index].attrUnit
-            )
-          }
+          type.setAttribute("压力",this.form.pressure)
+          type.setAttribute("载荷",this.form.loads)
+          type.setAttribute("压力已知",this.form.pressureState)
+          type.setAttribute("载荷已知",this.form.loadState)
+          type.setAttribute("海拔",this.form.elevation)
           var curConnection = {}
           curConnection.id = eid
           var connect = []
@@ -547,7 +542,12 @@ export default {
           this.handleDrop(graph, curFile, curX, curY, type, eid)
           this.dialogFormVisible = false
           this.form.itemName = ''
-          this.form.attrs = []
+          this.form.connections = []
+          this.form.pressure = ''
+          this.form.pressureState = ''
+          this.form.loadState = ''
+          this.form.loads = ''
+          this.form.elevation = ''
         } else {
           return false
         }
@@ -556,7 +556,12 @@ export default {
     // 关闭弹框
     closeDialog () {
       this.form.itemName = ''
-      this.form.attrs = []
+      this.form.connections = []
+      this.form.pressure = ''
+      this.form.pressureState = ''
+      this.form.loadState = ''
+      this.form.loads = ''
+      this.form.elevation = ''
     },
     // 保存模型到服务器
     saveModel () {
@@ -674,9 +679,7 @@ export default {
     const keyHandler = new mxKeyHandler(graph)
     // 按delete键删除元素
     keyHandler.bindKey(46, function (evt) {
-      if (graph.isEnabled()) {
         graph.removeCells()
-      }
     })
     // 应用自定义规则
     judgeConnection(graph)
@@ -824,6 +827,19 @@ export default {
       selectionChanged(graph)
     })
     getModel(graph);
+    // 连线时强制弹框填写参数
+    var cellsAdded = graph.cellsAdded
+    graph.cellsAdded = function(cells, parent, index, source, target, absolute, constrain, extend) {
+      if(cells[0].isVertex() === false) {
+        _this.editForm.eid = ''
+        _this.editForm.diameter = 0
+        _this.editForm.length = 0
+        _this.editForm.roughness = 0
+        _this.editFormVisible = true
+      }
+        cellsAdded.apply(this,arguments)
+    }
+
 
     // 自定义规则
     function judgeConnection (graph) {
@@ -851,17 +867,14 @@ export default {
           var cell2 = graph.getSelectionCell()
           if (cell2.value == null) {
             _this.editForm.eid = ''
-            _this.editForm.attrs = []
+            _this.editForm.diameter = 0
+            _this.editForm.length = 0
+            _this.editForm.roughness = 0
           } else {
             _this.editForm.eid = cell2.value.nodeName
-            for (var i = 0; i < cell2.value.attributes.length; ++i) {
-              var item = {}
-              var strs = cell2.value.attributes[i].nodeValue.split('<>')
-              item.attrName = cell2.value.attributes[i].nodeName
-              item.attrValue = strs[0]
-              item.attrUnit = strs[1]
-              _this.editForm.attrs.push(item)
-            }
+            _this.editForm.diameter = cell2.value.attributes[0].nodeValue
+            _this.editForm.length = cell2.value.attributes[1].nodeValue
+            _this.editForm.roughness = cell2.value.attributes[2].nodeValue
           }
           _this.editFormVisible = true
         })
@@ -1078,7 +1091,7 @@ export default {
               elementNameCountList[eid]++
             }
             var newType = doc.createElement(type.nodeName)
-            newType.setAttribute('名称', name + '<>')
+            newType.setAttribute('名称', name)
             for (var i = 0; i < type.attributes.length; ++i) {
               newType.setAttribute(type.attributes[i].nodeName, type.attributes[i].nodeValue)
             }
@@ -1139,7 +1152,7 @@ export default {
           elementNameCountList[eid]++
         }
         var newType = doc.createElement(type.nodeName)
-        newType.setAttribute('名称', name + '<>')
+        newType.setAttribute('名称', name)
         for (var i = 0; i < type.attributes.length; ++i) {
           newType.setAttribute(type.attributes[i].nodeName, type.attributes[i].nodeValue)
         }
@@ -1179,7 +1192,8 @@ export default {
       else if(attribute.nodeName === "载荷") {
         unit.innerText = "Sm³/d"
       }
-      else if(attribute.nodeName === "海拔") {
+      else if(attribute.nodeName === "海拔" || attribute.nodeName === "内径" ||
+              attribute.nodeName === "长度" || attribute.nodeName === "粗糙度") {
         unit.innerText = "m"
       }
       else {
