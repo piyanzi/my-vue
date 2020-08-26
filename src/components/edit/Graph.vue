@@ -27,6 +27,7 @@
           </el-button-group>
           <el-button-group>
             <el-button type="primary" size="small" @click="checkGraph" icon="el-icon-document-checked">检查项目</el-button>
+            <el-button type="primary" size="small" @click="shortPath" icon="el-icon-document-checked">最短路径</el-button>
           </el-button-group>
         </el-row>
         <el-row style="margin-left: 120px;margin-top: 2px;">
@@ -42,6 +43,9 @@
           </el-button-group>
           <el-button-group>
             <el-button type="success" size="small" @click="exportPDF" icon="el-icon-picture-outline">导出PDF</el-button>
+          </el-button-group>
+          <el-button-group>
+            <el-button type="danger" v-if="!ifRoot" size="small" @click="returnLast">返回上一层</el-button>
           </el-button-group>
         </el-row>
       </div>
@@ -148,6 +152,8 @@ var curFile
 var elementConnectionsList = []
 // 元件命名计数信息
 var elementNameCountList = []
+// 存储获得的底层节点
+var child
 
 export default {
   name: 'graph',
@@ -163,6 +169,7 @@ export default {
         connections: []
       },
       projectId: '',
+      ifRoot: true,
       rules: {
         itemName: [
           {
@@ -565,9 +572,27 @@ export default {
     },
     // 保存模型到服务器
     saveModel () {
+      let parent;
+      let i;
       var _this = this
       var enc = new mxCodec(mxUtils.createXmlDocument())
       var node = enc.encode(graph.getModel())
+      var evaluator = new XPathEvaluator();
+      // 带id的collapsed会导致重复ID
+      var expression = evaluator.createExpression("//*[@as='collapsed']")
+      var removes = expression.evaluate(node, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE)
+      for (i = 0; i < removes.snapshotLength; ++i) {
+        parent = removes.snapshotItem(i).parentNode;
+        parent.removeChild(removes.snapshotItem(i))
+        parent.setAttribute('collapsed', '1')
+      }
+      // 若站场没有带collapsed，则通过边界找出并全部设成收起状态
+      var expression2 = evaluator.createExpression("//*[@as='alternateBounds']")
+      var children = expression2.evaluate(node, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE)
+      for (i = 0; i < children.snapshotLength; ++i) {
+        parent = children.snapshotItem(i).parentNode.parentNode;
+        parent.setAttribute('collapsed', '1')
+      }
       var file = mxUtils.getXml(node)
       this.$axios
         .put('/model', {
@@ -600,6 +625,16 @@ export default {
             var model = mxUtils.parseXml(response.data.data["model"])
             var dec = new mxCodec(model)
             dec.decode(model.documentElement, graph.getModel())
+            // graph.selectAll()
+            // var cells = graph.getSelectionCells()
+            // var list = []
+            // for (var index in cells) {
+            //   if (cells[index].value.nodeName === '站场') {
+            //     list.push(cells[index])
+            //   }
+            // }
+            // graph.foldCells(list)
+            // graph.clearSelection()
             _this.$message('模型加载完成！')
           } else {
             _this.$message('获取模型文件错误，请重试！')
@@ -642,7 +677,62 @@ export default {
         this.$message('所有元件已连通！')
       }
       graph.clearSelection()
-    }
+    },
+    // 返回上一级画布
+    returnLast() {
+      graph.exitGroup()
+      graph.foldCells(graph.getDefaultParent())
+      console.log(graph.getCurrentRoot())
+      if (graph.getCurrentRoot() === null) {
+        this.ifRoot = true
+      }
+    },
+    // 最短路径
+    shortPath(){
+      graph.selectAll()
+      var cells = graph.getSelectionCells()
+      var vertexList = []
+      var edgeList = []
+      var disList = new Map()
+      var visit = new Map()
+      for (var i = 0; i < cells.length; ++i) {
+        if (cells[i].isVertex()) {
+          vertexList.push(cells[i].id)
+          disList.set(cells[i].id, Number.MAX_VALUE)
+          visit.set(cells[i].id, 0)
+        } else {
+          var pair = {}
+          pair.source = cells[i].source.id
+          pair.target = cells[i].target.id
+          pair.value = cells[i].value.attributes[1].nodeValue
+          edgeList.push(pair)
+        }
+      }
+      //以第一个元件为起点
+      disList.set(vertexList[0], 0)
+      var min,minVertex
+      for (var i = 0; i < vertexList.length; ++i) {
+        min = Number.MAX_VALUE
+        for (var j = 0; j < vertexList.length; ++j) {
+          if (visit.get(vertexList[j]) == 0 && disList.get(vertexList[j]) < min) {
+            min = disList.get(vertexList[j])
+            minVertex = vertexList[j]
+          }
+        }
+        visit.set(minVertex,1)
+        for(var index in edgeList) { //寻找此时最短路径的点可到的点 并更新该点的最短路径
+          if (edgeList[index].source == minVertex) {
+            var target = edgeList[index].target
+            var value = parseInt(edgeList[index].value)
+            if (visit.get(target) == 0 && disList.get(target) > disList.get(minVertex) + value) {
+              disList.set(target, disList.get(minVertex) + value)
+            }
+          }
+        }
+      }
+      console.log(disList)
+      graph.clearSelection()
+    },
   },
   mounted () {
     // 旋转
@@ -668,7 +758,7 @@ export default {
     // 允许两个节点间出现双向连接
     graph.setMultigraph(true)
     //连接点允许误差
-    graph.setTolerance(20)
+    graph.setTolerance(10)
     // 从中心/左上缩放
     graph.centerZoom = true
     // 自定义菜单
@@ -756,6 +846,28 @@ export default {
     graph.setAllowDanglingEdges(false)
     // 允许左键框选多个节点移动
     new mxRubberband(graph)
+    // 折叠监听函数
+    var foldingHandler = function (sender, evt) {
+      var cells = evt.getProperty('cells')
+      for (var i = 0; i < cells.length; i++) {
+        var geo = graph.model.getGeometry(cells[i])
+        geo.width = 64
+        geo.height = 64
+      }
+    }
+    graph.addListener(mxEvent.FOLD_CELLS, foldingHandler)
+    // 点击时直接点到底层元素
+    const getInitialCellForEvent = mxGraphHandler.prototype.getInitialCellForEvent;
+    mxGraphHandler.prototype.getInitialCellForEvent = function (me) {
+      child = me.getCell()
+      return getInitialCellForEvent.apply(this, arguments)
+    }
+    const selectCellForEvent = mxGraph.prototype.selectCellForEvent;
+    mxGraph.prototype.selectCellForEvent = function (cell) {
+      cell = child
+      selectCellForEvent.call(this, cell)
+      return
+    }
     // 元件重命名重写
     graph.convertValueToString = function (cell) {
       if (cell.isVertex()) {
@@ -863,21 +975,29 @@ export default {
         menu.addItem('删除', null, function () {
           graph.removeCells()
         })
-        menu.addItem('属性', null, function () {
-          var cell2 = graph.getSelectionCell()
-          if (cell2.value == null) {
-            _this.editForm.eid = ''
-            _this.editForm.diameter = 0
-            _this.editForm.length = 0
-            _this.editForm.roughness = 0
-          } else {
-            _this.editForm.eid = cell2.value.nodeName
-            _this.editForm.diameter = cell2.value.attributes[0].nodeValue
-            _this.editForm.length = cell2.value.attributes[1].nodeValue
-            _this.editForm.roughness = cell2.value.attributes[2].nodeValue
-          }
-          _this.editFormVisible = true
-        })
+        if(!cell.isVertex()) {
+          menu.addItem('属性', null, function () {
+            var cell2 = graph.getSelectionCell()
+            if (cell2.value == null) {
+              _this.editForm.eid = ''
+              _this.editForm.diameter = 0
+              _this.editForm.length = 0
+              _this.editForm.roughness = 0
+            } else {
+              _this.editForm.eid = cell2.value.nodeName
+              _this.editForm.diameter = cell2.value.attributes[0].nodeValue
+              _this.editForm.length = cell2.value.attributes[1].nodeValue
+              _this.editForm.roughness = cell2.value.attributes[2].nodeValue
+            }
+            _this.editFormVisible = true
+          })
+        }
+        if (cell.value.nodeName === '站场') {
+          menu.addItem('进入', null, function () {
+            graph.enterGroup(cell)
+            _this.ifRoot = false
+          })
+        }
         // menu.addItem("旋转", null, function () {
         //   graph.rotate90();
         // });
@@ -935,6 +1055,16 @@ export default {
             var model = mxUtils.parseXml(response.data.data["model"])
             var dec = new mxCodec(model)
             dec.decode(model.documentElement, graph.getModel())
+            // graph.selectAll()
+            // var cells = graph.getSelectionCells()
+            // var list = []
+            // for (var index in cells) {
+            //   if (cells[index].value.nodeName === '站场') {
+            //     list.push(cells[index])
+            //   }
+            // }
+            // graph.foldCells(list)
+            // graph.clearSelection()
             _this.$message('模型加载完成！')
           } else {
             _this.$message('获取模型文件错误，请重试！')
@@ -969,6 +1099,11 @@ export default {
 
     // toolbar拖拽添加节点
     function addCell (graph, image, x, y, type, id) {
+      console.log(graph.getDefaultParent().id)
+      if (graph.getDefaultParent().id !== '1' && type.nodeName === '站场') {
+        _this.$message("站场内不能再插入站场！")
+        return
+      }
       var width = image.naturalWidth / 2
       var height = image.naturalHeight / 2
       var style =
@@ -1019,8 +1154,8 @@ export default {
             var attributes = response.data.data
               type.setAttribute("压力", attributes["pressure"])
               type.setAttribute("载荷", attributes["loads"])
-              type.setAttribute("已知压力", attributes["pressure_state"])
-              type.setAttribute("已知载荷", attributes["load_state"])
+              type.setAttribute("压力已知", attributes["pressure_state"])
+              type.setAttribute("载荷已知", attributes["load_state"])
               type.setAttribute("海拔", attributes["elevation"])
           } else {
             _this.$message('获取' + elementID + '号元件属性错误，请重试！')
