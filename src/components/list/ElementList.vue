@@ -133,11 +133,11 @@ export default {
       })
         .then(() => {
           id = row.id
-          path = row.path
+          name = row.name
           that.$axios.post('/deleteElement',
             {
               id: id,
-              path: path
+              name: name
             }
           ).then((response) => {
             // eslint-disable-next-line eqeqeq
