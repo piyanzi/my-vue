@@ -723,7 +723,7 @@ export default {
         for(var index in edgeList) { //寻找此时最短路径的点可到的点 并更新该点的最短路径
           if (edgeList[index].source == minVertex) {
             var target = edgeList[index].target
-            var value = parseInt(edgeList[index].value)
+            var value = parseFloat(edgeList[index].value)
             if (visit.get(target) == 0 && disList.get(target) > disList.get(minVertex) + value) {
               disList.set(target, disList.get(minVertex) + value)
             }
