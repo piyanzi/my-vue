@@ -27,7 +27,7 @@
           </el-button-group>
           <el-button-group>
             <el-button type="primary" size="small" @click="checkGraph" icon="el-icon-document-checked">检查项目</el-button>
-            <el-button type="primary" size="small" @click="shortPath" icon="el-icon-document-checked">最短路径</el-button>
+            <el-button type="primary" size="small" @click="handlePath" icon="el-icon-document-checked">最短路径</el-button>
           </el-button-group>
         </el-row>
         <el-row style="margin-left: 120px;margin-top: 2px;">
@@ -124,6 +124,44 @@
       </div>
     </el-dialog>
 
+    <el-dialog title="寻找最短路径" :visible.sync="findPathFormVisible" width="30%">
+      <el-form ref="pathNode" :model="pathNode">
+        <el-form-item label="选择节点" label-width="100px">
+          <el-select v-model="pathNode.node" placeholder="请选择节点">
+            <el-option
+              v-for="item in allNodes"
+              :key="item.name"
+              :label="item.name"
+              :value="item.name"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <el-button type="primary" @click="shortPath(pathNode.node)">查询</el-button>
+    </el-dialog>
+
+    <el-dialog title="最短路径" :visible.sync="pathFormVisible" width="30%">
+      <el-table
+        :data="tablePathForm.slice((currentPage-1)*PageSize,currentPage*PageSize)"
+        border
+        ref="tablePathForm"
+        style="width: 100%"
+      >
+        <el-table-column prop="key" label="元件名称" width="180"></el-table-column>
+        <el-table-column prop="value" label="路径长度" width="200"></el-table-column>
+      </el-table>
+
+      <div class="tabListPage">
+        <el-pagination @size-change="handleSizeChange"
+                       @current-change="handleCurrentChange"
+                       :current-page="currentPage"
+                       :page-sizes="pageSizes"
+                       :page-size="PageSize" layout="total, sizes, prev, pager, next, jumper"
+                       :total="totalCount">
+        </el-pagination>
+      </div>
+
+    </el-dialog>
+
   </div>
 </template>
 
@@ -180,8 +218,23 @@ export default {
           { required: true, message: '元件名称不能为空', trigger: 'change' }
         ]
       },
+      tablePathForm: [],
+      // 默认显示第几页
+      currentPage: 1,
+      // 总条数，根据接口获取数据长度(注意：这里不能为空)
+      totalCount: 1,
+      // 个数选择器（可修改）
+      pageSizes: [10, 20, 30, 50],
+      // 默认每页显示的条数（可修改）
+      PageSize: 10,
       dialogFormVisible: false,
       editFormVisible: false,
+      pathFormVisible: false,
+      findPathFormVisible: false,
+      allNodes: [],
+      pathNode: {
+        node: ''
+      },
       editForm: {
         eid: '',
         diameter: '',
@@ -687,19 +740,37 @@ export default {
         this.ifRoot = true
       }
     },
+    handlePath () {
+      var that = this
+      this.$axios.get('/project/' + this.projectId + '/nodes')
+        .then((response) => {
+          // eslint-disable-next-line eqeqeq
+          if (response.status == 200) {
+            that.allNodes = response.data.data
+          }
+        })
+        .catch(function (error) {
+          console.log(error)
+        })
+      this.findPathFormVisible = true
+    },
     // 最短路径
-    shortPath(){
+    shortPath (startName) {
       graph.selectAll()
       var cells = graph.getSelectionCells()
       var vertexList = []
       var edgeList = []
+      var id = 0
       var disList = new Map()
+      var idName = new Map()
       var visit = new Map()
       for (var i = 0; i < cells.length; ++i) {
         if (cells[i].isVertex()) {
           vertexList.push(cells[i].id)
           disList.set(cells[i].id, Number.MAX_VALUE)
           visit.set(cells[i].id, 0)
+          idName.set(cells[i].id, cells[i].value.attributes[0].value)
+          if (cells[i].value.attributes[0].value == startName) id = i;
         } else {
           var pair = {}
           pair.source = cells[i].source.id
@@ -709,7 +780,7 @@ export default {
         }
       }
       //以第一个元件为起点
-      disList.set(vertexList[0], 0)
+      disList.set(vertexList[id], 0)
       var min,minVertex
       for (var i = 0; i < vertexList.length; ++i) {
         min = Number.MAX_VALUE
@@ -730,9 +801,33 @@ export default {
           }
         }
       }
-      console.log(disList)
+      var tmpList = []
+      this.findPathFormVisible = false
+      this.pathFormVisible = true
+      disList.forEach(function(value,key){
+        var pair = {}
+        pair.key = idName.get(key)
+        if(value == Number.MAX_VALUE)pair.value = "不可达"
+        else pair.value = value
+        tmpList.push(pair)
+      });
+      this.tablePathForm = tmpList
+      this.totalCount = tmpList.length
       graph.clearSelection()
     },
+    // 分页
+    // 每页显示的条数
+    handleSizeChange (val) {
+      // 改变每页显示的条数
+      this.PageSize = val
+      // 注意：在改变每页显示的条数时，要将页码显示到第一页
+      this.currentPage = 1
+    },
+    // 显示第几页
+    handleCurrentChange (val) {
+      // 改变默认的页数
+      this.currentPage = val
+    }
   },
   mounted () {
     // 旋转
