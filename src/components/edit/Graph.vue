@@ -124,15 +124,15 @@
       </div>
     </el-dialog>
 
-    <el-dialog title="寻找最短路径" :visible.sync="findPathFormVisible" width="30%">
+    <el-dialog title="寻找最短路径" :visible.sync="findPathFormVisible" width="30%" @close="allNodes = [];pathNode.node = ''" center>
       <el-form ref="pathNode" :model="pathNode">
         <el-form-item label="选择节点" label-width="100px">
           <el-select v-model="pathNode.node" placeholder="请选择节点">
             <el-option
               v-for="item in allNodes"
-              :key="item.name"
-              :label="item.name"
-              :value="item.name"></el-option>
+              :key="item.value.attributes[0].value"
+              :label="item.value.attributes[0].value"
+              :value="item.value.attributes[0].value"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -741,18 +741,15 @@ export default {
       }
     },
     handlePath () {
-      var that = this
-      this.$axios.get('/project/' + this.projectId + '/nodes')
-        .then((response) => {
-          // eslint-disable-next-line eqeqeq
-          if (response.status == 200) {
-            that.allNodes = response.data.data
-          }
-        })
-        .catch(function (error) {
-          console.log(error)
-        })
+      graph.selectAll()
+      var cells = graph.getSelectionCells()
+      for (var i = 0; i < cells.length; ++i) {
+        if (cells[i].isVertex()) {
+          this.allNodes.push(cells[i])
+        }
+      }
       this.findPathFormVisible = true
+      graph.clearSelection()
     },
     // 最短路径
     shortPath (startName) {
@@ -770,8 +767,9 @@ export default {
           disList.set(cells[i].id, Number.MAX_VALUE)
           visit.set(cells[i].id, 0)
           idName.set(cells[i].id, cells[i].value.attributes[0].value)
-          if (cells[i].value.attributes[0].value == startName) id = i;
-        } else {
+          if (cells[i].value.attributes[0].value == startName) id = cells[i].id;
+        }
+        else {
           var pair = {}
           pair.source = cells[i].source.id
           pair.target = cells[i].target.id
@@ -780,7 +778,7 @@ export default {
         }
       }
       //以第一个元件为起点
-      disList.set(vertexList[id], 0)
+      disList.set(id, 0)
       var min,minVertex
       for (var i = 0; i < vertexList.length; ++i) {
         min = Number.MAX_VALUE
