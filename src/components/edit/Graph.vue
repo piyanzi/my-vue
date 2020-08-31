@@ -1114,8 +1114,13 @@ export default {
               var image = document.createElement('img')
               image.id = curElement.id
               image.src = basePath + curElement.path
-              image.width = 100
-              image.height = 50
+              if (image.height > 110) {
+                image.style = 'height: 50px;'
+              }
+              else {
+                image.style = 'width: 100px;'
+              }
+              // image.style = 'transform:scale(0.5);'
               var center = document.createElement('center')
               center.appendChild(image)
               tbContainer.appendChild(center)
