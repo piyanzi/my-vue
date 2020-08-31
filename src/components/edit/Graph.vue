@@ -944,8 +944,8 @@ export default {
       var cells = evt.getProperty('cells')
       for (var i = 0; i < cells.length; i++) {
         var geo = graph.model.getGeometry(cells[i])
-        geo.width = 64
-        geo.height = 64
+        geo.width = 75
+        geo.height = 60
       }
     }
     graph.addListener(mxEvent.FOLD_CELLS, foldingHandler)
