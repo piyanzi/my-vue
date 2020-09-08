@@ -1114,7 +1114,7 @@ export default {
               var image = document.createElement('img')
               image.id = curElement.id
               image.src = basePath + curElement.path
-              if (image.height > 110) {
+              if (image.height > 99) {
                 image.style = 'height: 50px;'
               }
               else {
@@ -1522,7 +1522,7 @@ export default {
   position: absolute;
   background-color: #f2f6fc;
   left: 0;
-  top: 40px;
+  top: 70px;
   bottom: 10px;
   width: 120px;
 }
