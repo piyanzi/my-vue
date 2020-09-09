@@ -47,7 +47,7 @@
         :total="totalCount"
       ></el-pagination>
     </div>
-    <el-dialog title="编辑/新建" width="30%" :visible.sync="editFormVisible">
+    <el-dialog title="编辑" width="30%" :visible.sync="editFormVisible">
       <!-- 在el-dialog中进行嵌套el-form实现弹出表格的效果 -->
       <el-form :rules="editRules" :model="editForm" ref="editForm">
         <el-form-item label="名称" label-width="100px" prop="name">
@@ -59,13 +59,13 @@
         <el-form-item label="载荷" label-width="100px" prop="loads">
           <el-input v-model="editForm.loads" auto-complete="off"></el-input>
         </el-form-item>
-        <el-form-item label="压力是否已知" label-width="100px" prop="pressure_state">
+        <el-form-item label="压力是否已知" label-width="100px" prop="pressureState">
           <el-radio-group v-model="editForm.pressureState">
             <el-radio :label="true">Fixed</el-radio>
             <el-radio :label="false">Estimated</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="载荷是否已知" label-width="100px" prop="load_state">
+        <el-form-item label="载荷是否已知" label-width="100px" prop="loadState">
           <el-radio-group v-model="editForm.loadState">
             <el-radio :label="true">Fixed</el-radio>
             <el-radio :label="false">Estimated</el-radio>
@@ -88,6 +88,47 @@
         <el-button type="primary" @click="update">确 定</el-button>
       </div>
     </el-dialog>
+    <el-dialog title="新建" width="30%" :visible.sync="addFormVisible">
+      <!-- 在el-dialog中进行嵌套el-form实现弹出表格的效果 -->
+      <el-form :rules="addRules" :model="addForm" ref="addForm">
+        <el-form-item label="名称" label-width="100px" prop="name">
+          <el-input v-model="addForm.name" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="压力" label-width="100px" prop="pressure">
+          <el-input v-model="addForm.pressure" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="载荷" label-width="100px" prop="loads">
+          <el-input v-model="addForm.loads" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="压力是否已知" label-width="100px" prop="pressureState">
+          <el-radio-group v-model="addForm.pressureState">
+            <el-radio :label="true">Fixed</el-radio>
+            <el-radio :label="false">Estimated</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="载荷是否已知" label-width="100px" prop="loadState">
+          <el-radio-group v-model="addForm.loadState">
+            <el-radio :label="true">Fixed</el-radio>
+            <el-radio :label="false">Estimated</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="海拔" label-width="100px" prop="elevation">
+          <el-input v-model="addForm.elevation" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="横坐标" label-width="100px" prop="x">
+          <el-input v-model="addForm.x" auto-complete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="纵坐标" label-width="100px" prop="y">
+          <el-input v-model="addForm.y" auto-complete="off"></el-input>
+        </el-form-item>
+      </el-form>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancel">取 消</el-button>
+        <!-- 设置触发更新的方法 -->
+        <el-button type="primary" @click="addEdit">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -108,15 +149,7 @@ export default {
     cancel () {
       // 取消的时候直接设置对话框不可见即可
       this.editFormVisible = false
-      this.editForm.loadState = ''
-      this.editForm.elevation = ''
-      this.editForm.id = ''
-      this.editForm.name = ''
-      this.editForm.loads = ''
-      this.editForm.pressureState = ''
-      this.editForm.pressure = ''
-      this.editForm.x = ''
-      this.editForm.y = ''
+      this.addFormVisible = false
     },
     // 编辑
     handleEdit (row) {
@@ -149,6 +182,7 @@ export default {
             // eslint-disable-next-line eqeqeq
             if (response.status === 200) {
               that.cancel()
+              this.getNode()
             }
           })
           .catch(function (error) {
@@ -167,19 +201,22 @@ export default {
       return ret
     },
     addEdit () {
-      this.$refs.editForm.validate((valid) => {
+      this.$refs.addForm.validate((valid) => {
         if (valid) {
           var that = this
-          name = this.editForm.name
-          pressure = this.editForm.pressure
-          loads = this.editForm.loads
-          pressureState = this.editForm.pressure_state
-          loadState = this.editForm.load_state
-          elevation = this.editForm.elevation
-          x = this.editForm.x
-          y = this.editForm.y
+          name = this.addForm.name
+          pressure = this.addForm.pressure
+          loads = this.addForm.loads
+          pressureState = this.addForm.pressureState
+          loadState = this.addForm.loadState
+          elevation = this.addForm.elevation
+          x = this.addForm.x
+          y = this.addForm.y
           this.$axios
             .post('/addNode', {
+              elementId: 1,
+              elementName: '普通节点',
+              projectId: this.pid,
               name: name,
               pressure: pressure,
               loads: loads,
@@ -194,6 +231,7 @@ export default {
               if (response.status === 200) {
                 that.$message('新增节点成功！')
                 that.cancel()
+                that.getNode()
               }
             })
             .catch(function (error) {
@@ -210,8 +248,8 @@ export default {
           name = this.editForm.name
           pressure = this.editForm.pressure
           loads = this.editForm.loads
-          pressureState = this.editForm.pressure_state
-          loadState = this.editForm.load_state
+          pressureState = this.editForm.pressureState
+          loadState = this.editForm.loadState
           elevation = this.editForm.elevation
           x = this.editForm.x
           y = this.editForm.y
@@ -231,6 +269,7 @@ export default {
               // eslint-disable-next-line eqeqeq
               if (response.status === 200) {
                 that.cancel()
+                this.getNode()
               }
             })
             .catch(function (error) {
@@ -241,16 +280,10 @@ export default {
     },
     // 新建任务
     handleAddEdit () {
-      this.editForm.loadState = ''
-      this.editForm.elevation = ''
-      this.editForm.id = ''
-      this.editForm.name = ''
-      this.editForm.loads = ''
-      this.editForm.pressureState = ''
-      this.editForm.pressure = ''
-      this.editForm.x = ''
-      this.editForm.y = ''
-      this.editFormVisible = true
+      Object.keys(this.addForm).forEach(key => (
+        this.addForm[key] = ''
+      ))
+      this.addFormVisible = true
     },
     getNode () {
       this.$axios
@@ -298,6 +331,7 @@ export default {
       // 默认每页显示的条数（可修改）
       PageSize: 10,
       pid: 0,
+      addFormVisible: false,
       editFormVisible: false,
       editForm: {
         id: '',
@@ -310,8 +344,25 @@ export default {
         x: '',
         y: ''
       },
+      addForm: {
+        name: '',
+        pressure: '',
+        pressureState: '',
+        loads: '',
+        loadState: '',
+        elevation: '',
+        x: '',
+        y: ''
+      },
       editRules: {
-        element_id: [{ required: true, message: '请输入元件id', trigger: 'change' }],
+        x: [{ required: true, message: '请输入x', trigger: 'change' }],
+        y: [{ required: true, message: '请输入y', trigger: 'change' }],
+        elevation: [{ required: true, message: '请输入海拔', trigger: 'change' }],
+        pressure: [{ required: true, message: '请输入压力', trigger: 'change' }],
+        loads: [{ required: true, message: '请输入载荷', trigger: 'change' }],
+        name: [{ required: true, message: '请输入元件名称', trigger: 'change' }]
+      },
+      addRules: {
         x: [{ required: true, message: '请输入x', trigger: 'change' }],
         y: [{ required: true, message: '请输入y', trigger: 'change' }],
         elevation: [{ required: true, message: '请输入海拔', trigger: 'change' }],

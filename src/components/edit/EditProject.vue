@@ -14,7 +14,7 @@
         <el-form-item label="起始节点">
           <el-select v-model="pipe.startId" @change="selectStart" placeholder="请选择节点">
             <el-option
-              v-for="item in nodes"
+              v-for="item in bases"
               :key="item.id"
               :label="item.name"
               :value="item.id"></el-option>
@@ -30,7 +30,7 @@
         <el-form-item label="终止节点">
           <el-select v-model="pipe.endId" @change="selectEnd" placeholder="请选择节点">
             <el-option
-              v-for="item in nodes"
+              v-for="item in bases"
               :key="item.id"
               :label="item.name"
               :value="item.id"></el-option>
@@ -58,54 +58,6 @@
         <el-button @click="alterPipe">确定</el-button>
       </span>
     </el-dialog>
-
-    <el-dialog
-      width="30%"
-      title="修改管网元素"
-      :visible="nodeVisible">
-      <el-form :model="node">
-        <el-form-item label="节点名称" label-width="100px">
-          <el-input v-model="node.name"></el-input>
-        </el-form-item>
-        <el-form-item label="节点类型" label-width="100px">
-          <el-select v-model="node.elementId" placeholder="请选择节点">
-            <el-option
-              v-for="item in elements"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="节点压力" label-width="100px">
-          <el-radio-group v-model="node.pressureState">
-            <el-radio :label="true">Fixed</el-radio>
-            <el-radio :label="false">Estimated</el-radio>
-          </el-radio-group>
-          <el-input v-model="node.pressure"></el-input>
-        </el-form-item>
-        <el-form-item label="节点载荷" label-width="100px">
-          <el-radio-group v-model="node.loadState">
-            <el-radio :label="true">Fixed</el-radio>
-            <el-radio :label="false">Estimated</el-radio>
-          </el-radio-group>
-          <el-input v-model="node.loads"></el-input>
-        </el-form-item>
-        <el-form-item label="节点海拔" label-width="100px">
-          <el-input v-model="node.elevation"></el-input>
-        </el-form-item>
-        <el-form-item label="横坐标" label-width="100px">
-          <el-input v-model="node.x"></el-input>
-        </el-form-item>
-        <el-form-item label="纵坐标" label-width="100px">
-          <el-input v-model="node.y"></el-input>
-        </el-form-item>
-      </el-form>
-      <span slot="footer">
-        <el-button @click="nodeVisible = false;isNodeCreate = false">取消</el-button>
-        <el-button @click="alterNode">确定</el-button>
-      </span>
-    </el-dialog>
-
     <el-tabs v-model="activeName" @tab-click="handleClick" type="card">
       <el-tab-pane label="工程信息" name="projects">
         <el-card body-style="width: 300px">
@@ -209,23 +161,17 @@ export default {
   data () {
     return {
       // 节点参数
-      node: {
+      base: {
         id: 0,
         modelId: 0,
         projectId: 0,
         elementId: 0,
         elementName: '',
         name: '',
-        pressure: 0.0,
-        loads: 0.0,
-        pressureState: false,
-        loadState: false,
         elevation: 0.0,
         x: 0,
         y: 0
       },
-      isNodeCreate: false,
-      nodeVisible: false,
       // 管道参数
       pipe: {
         id: 0,
@@ -270,7 +216,7 @@ export default {
       type: [],
 
       // 节点数据
-      nodes: [],
+      bases: [],
 
       // 管道数据
       pipes: [],
@@ -302,8 +248,8 @@ export default {
   methods: {
     // 获取所有节点，用于设置连接关系
     async getAllNodes () {
-      const { data: res } = await this.$http.get('/project/' + this.pid + '/nodes')
-      this.nodes = res.data
+      const { data: res } = await this.$http.get('/project/' + this.pid + '/bases')
+      this.bases = res.data
     },
     // 新增管道
     async createPipe () {
@@ -353,34 +299,12 @@ export default {
       }
     },
 
-    // 新增节点
-    async createNode () {
-      // 清空属性
-      Object.keys(this.node).forEach(key => (
-        this.node[key] = ''
-      ))
-      this.$set(this.node, 'projectId', this.pid)
-      this.isNodeCreate = true
-      await this.getElements()
-      // const { data: res } = await this.$http.post('/nodes', this.node)
-      // this.node = res.data
-      this.nodeVisible = true
-    },
-
-    // 编辑节点数据
-    async editNode (id) {
-      const { data: res } = await this.$http.get('/nodes/' + id)
-      this.node = res.data
-      await this.getElements()
-      this.nodeVisible = true
-    },
-
     // 获取start_connection
     async selectStart () {
       let elementId
-      for (var index in this.nodes) {
-        if (this.nodes[index].id === this.pipe.startId) {
-          elementId = this.nodes[index].elementId
+      for (var index in this.bases) {
+        if (this.bases[index].id === this.pipe.startId) {
+          elementId = this.bases[index].elementId
           break
         }
       }
@@ -396,9 +320,9 @@ export default {
     // 获取end_connection
     async selectEnd () {
       let elementId
-      for (var index in this.nodes) {
-        if (this.nodes[index].id === this.pipe.endId) {
-          elementId = this.nodes[index].elementId
+      for (var index in this.bases) {
+        if (this.bases[index].id === this.pipe.endId) {
+          elementId = this.bases[index].elementId
           break
         }
       }
@@ -409,42 +333,6 @@ export default {
       this.endConnections = res.data
       if (this.isPipeCreate) {
         this.pipe.endConnection = ''
-      }
-    },
-
-    // 提交节点修改
-    async alterNode () {
-      if (!this.isNodeCreate) {
-        const { data: res } = await this.$http.put('/nodes', this.node)
-        this.nodeVisible = false
-        await this.getNodes(this.pageInfo)
-        if (res.status === 0) {
-          this.$message.success('修改成功！')
-        } else {
-          this.$message.error('修改出错！')
-        }
-      } else {
-        this.isNodeCreate = false
-        const { data: res } = await this.$http.post('/nodes', this.node)
-        this.nodeVisible = false
-        await this.getNodes(this.pageInfo)
-        if (res.status === 0) {
-          this.$message.success('新建成功！')
-        } else {
-          this.$message.error('新建出错！')
-        }
-      }
-    },
-
-    // 删除节点
-    async deleteNode (id) {
-      const { data: res } = await this.$http.delete('/nodes/' + id)
-      if (res.status === 0) {
-        this.$message.success('删除成功！')
-        await this.getNodeCount()
-        await this.getNodes(this.pageInfo)
-      } else {
-        this.$message.error('删除出错！')
       }
     },
 
@@ -521,7 +409,6 @@ export default {
         await this.getPipes(this.pageInfo)
       }
       if (tab.name === 'nodes') {
-        await this.getNodeCount()
         await this.getNodes(this.pageInfo)
       }
     },
@@ -536,24 +423,6 @@ export default {
     async getPipeCount () {
       const { data: res } = await this.$http.get('/project/pipes/count/' + this.pid)
       this.total = res.data
-    },
-
-    // 获取节点总数
-    async getNodeCount () {
-      const { data: res } = await this.$http.get('/project/nodes/count/' + this.pid)
-      this.total = res.data
-    },
-
-    // 获取节点数据,需要分页
-    async getNodes (pageInfo) {
-      // 节点数据分页查询
-      const { data: res } = await this.$http.get('/project/nodes/' + this.pid, {
-        params: {
-          pageNumber: pageInfo.pageNumber,
-          pageSize: pageInfo.pageSize
-        }
-      })
-      this.nodes = res.data
     },
 
     // 获取管段数据，需要分页
