@@ -167,31 +167,31 @@
 
 <script>
 /* eslint-disable */
-import {UnionSet} from '../../plugins/UnionSet'
+import { UnionSet } from '../../plugins/UnionSet'
 
-var graph
-var model
-var tbContainer
-var headContainer
-var container
-var rightContainer
-var undoManager
-var xml
-var doc
+let graph
+let model
+let tbContainer
+let headContainer
+let container
+let rightContainer
+let undoManager
+let xml
+let doc
 // 存储工具栏信息
-var elementInfo = []
-var curElement = {}
-var elementAttrList = []
+let elementInfo = []
+let curElement = {}
+const elementAttrList = []
 // 新增元件相关全局变量
-var curX
-var curY
-var curFile
+let curX
+let curY
+let curFile
 // 元件连接点位置信息
-var elementConnectionsList = []
+const elementConnectionsList = []
 // 元件命名计数信息
-var elementNameCountList = []
+const elementNameCountList = []
 // 存储获得的底层节点
-var child
+let child
 
 export default {
   name: 'graph',
@@ -252,8 +252,8 @@ export default {
       }
     }
   },
-  created() {
-    this.projectId = this.$route.query.id;
+  created () {
+    this.projectId = this.$route.query.id
   },
   methods: {
     // 关闭Edge
@@ -262,24 +262,23 @@ export default {
       this.editForm.diameter = 0
       this.editForm.length = 0
       this.editForm.roughness = 0
-      var cell2 = graph.getSelectionCell()
-      if(cell2.value === null) {
-        var list = []
+      const cell2 = graph.getSelectionCell()
+      if (cell2.value === null) {
+        const list = []
         list.push(cell2)
         graph.removeCells(list)
       }
-
     },
     // 更新Edge
     update () {
       this.$refs.editForm.validate((valid) => {
         if (valid) {
-          var doc = mxUtils.createXmlDocument()
-          var type = doc.createElement(this.editForm.eid)
-          type.setAttribute("内径", this.editForm.diameter)
-          type.setAttribute("长度", this.editForm.length)
-          type.setAttribute("粗糙度", this.editForm.roughness)
-          var cell2 = graph.getSelectionCell()
+          const doc = mxUtils.createXmlDocument()
+          const type = doc.createElement(this.editForm.eid)
+          type.setAttribute('内径', this.editForm.diameter)
+          type.setAttribute('长度', this.editForm.length)
+          type.setAttribute('粗糙度', this.editForm.roughness)
+          const cell2 = graph.getSelectionCell()
           console.log(cell2)
           if (cell2 !== null) {
             cell2.setValue(type)
@@ -324,22 +323,22 @@ export default {
     // 最佳大小
     scaleBest () {
       graph.selectAll()
-      if (graph.getSelectionCells().length == 0) {
+      if (graph.getSelectionCells().length === 0) {
         this.$message('当前画布没有内容！')
         graph.clearSelection()
         return
       }
       graph.clearSelection()
-      var bounds = graph.getGraphBounds()
-      var t = graph.view.translate
-      var s = graph.view.scale
+      const bounds = graph.getGraphBounds()
+      const t = graph.view.translate
+      const s = graph.view.scale
       bounds.width /= s
       bounds.height /= s
       bounds.x = bounds.x / s - t.x
       bounds.y = bounds.y / s - t.y
-      var cw = graph.container.clientWidth - 10
-      var ch = graph.container.clientHeight - 10
-      var scale =
+      const cw = graph.container.clientWidth - 10
+      const ch = graph.container.clientHeight - 10
+      const scale =
         Math.floor(20 * Math.min(cw / bounds.width, ch / bounds.height)) / 20
       graph.zoomTo(scale)
       this.$message(
@@ -356,7 +355,7 @@ export default {
     },
     // 原始大小
     scaleRaw () {
-      var scale = 1
+      const scale = 1
       graph.zoomTo(scale)
       this.$message('还原到' + (graph.view.scale * 100).toString() + '%')
     },
@@ -370,27 +369,27 @@ export default {
     },
     // 导出PDF
     exportPDF () {
-      var autoOrigin = true
-      var printScale = 1
+      const autoOrigin = true
+      let printScale = 1
       printScale *= 0.75
-      var pf = graph.pageFormat
-      var scale = 1 / graph.pageScale
+      let pf = graph.pageFormat
+      let scale = 1 / graph.pageScale
       if (autoOrigin) {
-        var pageCount = 1
+        const pageCount = 1
         if (!isNaN(pageCount)) {
           scale = mxUtils.getScaleForPageCount(pageCount, graph, pf)
           console.log(scale)
         }
       }
-      var gb = graph.getGraphBounds()
-      var border = 0
-      var x0 = 0
-      var y0 = 0
+      graph.getGraphBounds()
+      const border = 0
+      const x0 = 0
+      const y0 = 0
       pf = mxRectangle.fromRectangle(pf)
       pf.width = Math.ceil(pf.width * printScale)
       pf.height = Math.ceil(pf.height * printScale)
       scale *= printScale
-      var preview = this.createPrintPreview(
+      const preview = this.createPrintPreview(
         graph,
         scale,
         pf,
@@ -406,12 +405,11 @@ export default {
     },
     // 生成预览
     createPrintPreview (graph, scale, pf, border, x0, y0, autoOrigin) {
-      var preview = new mxPrintPreview(graph, scale, pf, border, x0, y0)
+      const preview = new mxPrintPreview(graph, scale, pf, border, x0, y0)
       preview.printBackgroundImage = true
       preview.autoOrigin = autoOrigin
-      var bg = '#ffffff'
-      preview.backgroundColor = bg
-      var writeHead = preview.writeHead
+      preview.backgroundColor = '#ffffff'
+      const writeHead = preview.writeHead
       preview.writeHead = function (doc) {
         writeHead.apply(this, arguments)
         doc.writeln('<style type="text/css">')
@@ -426,7 +424,7 @@ export default {
     printPreview (preview) {
       try {
         if (preview.wnd != null) {
-          var printFn = function () {
+          const printFn = function () {
             preview.wnd.focus()
             preview.wnd.print()
             preview.wnd.close()
@@ -438,9 +436,9 @@ export default {
     },
     // 展示JSON
     viewJSON () {
-      var enc = new mxCodec(mxUtils.createXmlDocument())
-      var node = enc.encode(graph.getModel())
-      var file = mxUtils.getXml(node)
+      const enc = new mxCodec(mxUtils.createXmlDocument())
+      const node = enc.encode(graph.getModel())
+      const file = mxUtils.getXml(node)
       // var jsonObj = JSON.stringify(this.$x2js.xml2js(file));
       // mxUtils.popup(jsonObj, true);
       mxUtils.popup(
@@ -450,17 +448,17 @@ export default {
     },
     // 导出JSON
     exportJSON () {
-      var enc = new mxCodec(mxUtils.createXmlDocument())
-      var node = enc.encode(graph.getModel())
-      var file = mxUtils.getXml(node)
-      var jsonObj = JSON.stringify(this.$x2js.xml2js(file))
+      const enc = new mxCodec(mxUtils.createXmlDocument())
+      const node = enc.encode(graph.getModel())
+      const file = mxUtils.getXml(node)
+      const jsonObj = JSON.stringify(this.$x2js.xml2js(file))
       // 下载文件方法
-      var funDownload = function (content, filename) {
-        var eleLink = document.createElement('a')
+      const funDownload = function (content, filename) {
+        const eleLink = document.createElement('a')
         eleLink.download = filename
         eleLink.style.display = 'none'
         // 字符内容转变成blob地址
-        var blob = new Blob([content])
+        const blob = new Blob([content])
         eleLink.href = URL.createObjectURL(blob)
         // 触发点击
         document.body.appendChild(eleLink)
@@ -478,24 +476,24 @@ export default {
     },
     // 展示XML
     viewXML () {
-      var enc = new mxCodec(mxUtils.createXmlDocument())
-      var node = enc.encode(graph.getModel())
+      const enc = new mxCodec(mxUtils.createXmlDocument())
+      const node = enc.encode(graph.getModel())
       mxUtils.popup(mxUtils.getPrettyXml(node), true)
     },
     // 导出XML
     exportXML () {
-      var enc = new mxCodec(mxUtils.createXmlDocument())
-      var node = enc.encode(graph.getModel())
-      var file = mxUtils.getXml(node)
+      const enc = new mxCodec(mxUtils.createXmlDocument())
+      const node = enc.encode(graph.getModel())
+      const file = mxUtils.getXml(node)
       // 同时存入全局变量
       xml = node
       // 下载文件方法
-      var funDownload = function (content, filename) {
-        var eleLink = document.createElement('a')
+      const funDownload = function (content, filename) {
+        const eleLink = document.createElement('a')
         eleLink.download = filename
         eleLink.style.display = 'none'
         // 字符内容转变成blob地址
-        var blob = new Blob([content])
+        const blob = new Blob([content])
         eleLink.href = URL.createObjectURL(blob)
         // 触发点击
         document.body.appendChild(eleLink)
@@ -512,28 +510,30 @@ export default {
     },
     // 创建节点类型
     createElement (name) {
-      for (var index in elementAttrList) {
-        var s = new XMLSerializer()
-        if (
-          s.serializeToString(elementAttrList[index]).startsWith('<' + name)
-        ) {
-          return elementAttrList[index]
+      for (const index in elementAttrList) {
+        if (elementAttrList.hasOwnProperty(index)) {
+          const s = new XMLSerializer()
+          if (
+            s.serializeToString(elementAttrList[index]).startsWith('<' + name)
+          ) {
+            return elementAttrList[index]
+          }
         }
       }
-      var eletype = doc.createElement(name)
-      elementAttrList.push(eletype)
-      return eletype
+      const elementType = doc.createElement(name)
+      elementAttrList.push(elementType)
+      return elementType
     },
     // 处理上传的xml文件
     handle_file (event) {
-      var files = event.target.files
+      const files = event.target.files
       if (files != null) {
-        var file = files[0]
-        var reader = new FileReader()
+        const file = files[0]
+        const reader = new FileReader()
         reader.onload = function (e) {
-          var data = e.target.result
-          var model = mxUtils.parseXml(data)
-          var dec = new mxCodec(model)
+          const data = e.target.result
+          const model = mxUtils.parseXml(data)
+          const dec = new mxCodec(model)
           dec.decode(model.documentElement, graph.getModel())
         }
         reader.readAsText(file)
@@ -541,78 +541,80 @@ export default {
     },
     // 处理上传的json文件
     handle_file2 (event) {
-      var _this = this
-      var files = event.target.files
+      const _this = this
+      const files = event.target.files
       if (files != null) {
-        var file = files[0]
-        var reader = new FileReader()
+        const file = files[0]
+        const reader = new FileReader()
         reader.onload = function (e) {
-          var data2 = e.target.result
+          const data2 = e.target.result
           // alert(data2);
-          var data = _this.$x2js.js2xml(JSON.parse(data2))
+          const data = _this.$x2js.js2xml(JSON.parse(data2))
           // alert(data);
           // mxUtils.popup(data, true);
-          var model = mxUtils.parseXml(data)
-          var dec = new mxCodec(model)
+          const model = mxUtils.parseXml(data)
+          const dec = new mxCodec(model)
           dec.decode(model.documentElement, graph.getModel())
         }
         reader.readAsText(file)
       }
     },
-    // 动态新增connection
-    addConnection () {
-      this.form.connections.push({
-        x: '',
-        y: ''
-      })
-    },
-    // 删除最后一个connection
-    delConnection () {
-      this.form.connections.splice(-1, 1)
-    },
-    // 删除当前connection
-    delCurConnection (index) {
-      this.form.connections.splice(index, 1)
-    },
-    // 拖拽新增节点类型
-    addNewElement (formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          var type = this.$options.methods.createElement(this.form.itemName)
-          var eid = elementNameCountList.length
-          console.log(eid)
-          elementNameCountList[eid] = 1
-          type.setAttribute("压力",this.form.pressure)
-          type.setAttribute("载荷",this.form.loads)
-          type.setAttribute("压力已知",this.form.pressureState)
-          type.setAttribute("载荷已知",this.form.loadState)
-          type.setAttribute("海拔",this.form.elevation)
-          var curConnection = {}
-          curConnection.id = eid
-          var connect = []
-          for (var index in this.form.connections) {
-            var pair = {}
-            pair.x = this.form.connections[index].x
-            pair.y = this.form.connections[index].y
-            pair.perimeter = true
-            connect.push(pair)
-          }
-          curConnection.connections = connect
-          elementConnectionsList.push(curConnection)
-          this.handleDrop(graph, curFile, curX, curY, type, eid)
-          this.dialogFormVisible = false
-          this.form.itemName = ''
-          this.form.connections = []
-          this.form.pressure = ''
-          this.form.pressureState = ''
-          this.form.loadState = ''
-          this.form.loads = ''
-          this.form.elevation = ''
-        } else {
-          return false
-        }
-      })
-    },
+    // // 动态新增connection
+    // addConnection () {
+    //   this.form.connections.push({
+    //     x: '',
+    //     y: ''
+    //   })
+    // },
+    // // 删除最后一个connection
+    // delConnection () {
+    //   this.form.connections.splice(-1, 1)
+    // },
+    // // 删除当前connection
+    // delCurConnection (index) {
+    //   this.form.connections.splice(index, 1)
+    // },
+    // // 拖拽新增节点类型
+    // addNewElement (formName) {
+    //   this.$refs[formName].validate((valid) => {
+    //     if (valid) {
+    //       const type = this.$options.methods.createElement(this.form.itemName);
+    //       const eid = elementNameCountList.length;
+    //       console.log(eid)
+    //       elementNameCountList[eid] = 1
+    //       type.setAttribute("压力",this.form.pressure)
+    //       type.setAttribute("载荷",this.form.loads)
+    //       type.setAttribute("压力已知",this.form.pressureState)
+    //       type.setAttribute("载荷已知",this.form.loadState)
+    //       type.setAttribute("海拔",this.form.elevation)
+    //       const curConnection = {};
+    //       curConnection.id = eid
+    //       const connect = [];
+    //       for (const index in this.form.connections) {
+    //         if(this.form.connections.hasOwnProperty(index)) {
+    //           const pair = {};
+    //           pair.x = this.form.connections[index].x
+    //           pair.y = this.form.connections[index].y
+    //           pair.perimeter = true
+    //           connect.push(pair)
+    //         }
+    //       }
+    //       curConnection.connections = connect
+    //       elementConnectionsList.push(curConnection)
+    //       this.handleDrop(graph, curFile, curX, curY, type, eid)
+    //       this.dialogFormVisible = false
+    //       this.form.itemName = ''
+    //       this.form.connections = []
+    //       this.form.pressure = ''
+    //       this.form.pressureState = ''
+    //       this.form.loadState = ''
+    //       this.form.loads = ''
+    //       this.form.elevation = ''
+    //     } else {
+    //       return false
+    //     }
+    //   })
+    // },
     // 关闭弹框
     closeDialog () {
       this.form.itemName = ''
@@ -625,28 +627,28 @@ export default {
     },
     // 保存模型到服务器
     saveModel () {
-      let parent;
-      let i;
-      var _this = this
-      var enc = new mxCodec(mxUtils.createXmlDocument())
-      var node = enc.encode(graph.getModel())
-      var evaluator = new XPathEvaluator();
+      let parent
+      let i
+      const _this = this
+      const enc = new mxCodec(mxUtils.createXmlDocument())
+      const node = enc.encode(graph.getModel())
+      const evaluator = new XPathEvaluator()
       // 带id的collapsed会导致重复ID
-      var expression = evaluator.createExpression("//*[@as='collapsed']")
-      var removes = expression.evaluate(node, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE)
+      const expression = evaluator.createExpression("//*[@as='collapsed']")
+      const removes = expression.evaluate(node, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE)
       for (i = 0; i < removes.snapshotLength; ++i) {
-        parent = removes.snapshotItem(i).parentNode;
+        parent = removes.snapshotItem(i).parentNode
         parent.removeChild(removes.snapshotItem(i))
         parent.setAttribute('collapsed', '1')
       }
       // 若站场没有带collapsed，则通过边界找出并全部设成收起状态
-      var expression2 = evaluator.createExpression("//*[@as='alternateBounds']")
-      var children = expression2.evaluate(node, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE)
+      const expression2 = evaluator.createExpression("//*[@as='alternateBounds']")
+      const children = expression2.evaluate(node, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE)
       for (i = 0; i < children.snapshotLength; ++i) {
-        parent = children.snapshotItem(i).parentNode.parentNode;
+        parent = children.snapshotItem(i).parentNode.parentNode
         parent.setAttribute('collapsed', '1')
       }
-      var file = mxUtils.getXml(node)
+      const file = mxUtils.getXml(node)
       this.$axios
         .put('/model', {
           pid: _this.projectId,
@@ -666,7 +668,7 @@ export default {
     },
     // 从服务器读取模型
     readModel () {
-      var _this = this
+      const _this = this
       if (this.$route.query.id === '') {
         this.$message('未指定项目，请选择项目后再刷新！')
         return
@@ -675,8 +677,8 @@ export default {
         .post('/model/' + this.$route.query.id)
         .then(function (response) {
           if (response.status === 200) {
-            var model = mxUtils.parseXml(response.data.data["model"])
-            var dec = new mxCodec(model)
+            const model = mxUtils.parseXml(response.data.data.model)
+            const dec = new mxCodec(model)
             dec.decode(model.documentElement, graph.getModel())
             // graph.selectAll()
             // var cells = graph.getSelectionCells()
@@ -701,27 +703,28 @@ export default {
     // 检查是否存在未连通元件
     checkGraph () {
       graph.selectAll()
-      var cells = graph.getSelectionCells()
-      var vertexList = []
-      var edgeList = []
-      var list = []
-      var finalSet = new Set()
-      for (var i = 0; i < cells.length; ++i) {
+      const cells = graph.getSelectionCells()
+      const vertexList = []
+      const edgeList = []
+      const finalSet = new Set()
+      for (let i = 0; i < cells.length; ++i) {
         if (cells[i].isVertex()) {
           vertexList.push(cells[i].id)
         } else {
-          var pair = {}
+          const pair = {}
           pair.source = cells[i].source.id
           pair.target = cells[i].target.id
           edgeList.push(pair)
         }
       }
       const set = new UnionSet(vertexList)
-      for (var index in edgeList) {
-        set.union(edgeList[index].source, edgeList[index].target)
+      for (const index in edgeList) {
+        if (edgeList.hasOwnProperty(index)) {
+          set.union(edgeList[index].source, edgeList[index].target)
+        }
       }
       for (let i = 0; i < set.arr.length; ++i) {
-        var root = set.find(set.arr[i])
+        const root = set.find(set.arr[i])
         finalSet.add(root)
       }
       if (finalSet.size > 2) {
@@ -732,7 +735,7 @@ export default {
       graph.clearSelection()
     },
     // 返回上一级画布
-    returnLast() {
+    returnLast () {
       graph.exitGroup()
       graph.foldCells(graph.getDefaultParent())
       console.log(graph.getCurrentRoot())
@@ -742,8 +745,8 @@ export default {
     },
     handlePath () {
       graph.selectAll()
-      var cells = graph.getSelectionCells()
-      for (var i = 0; i < cells.length; ++i) {
+      const cells = graph.getSelectionCells()
+      for (let i = 0; i < cells.length; ++i) {
         if (cells[i].isVertex()) {
           this.allNodes.push(cells[i])
         }
@@ -753,62 +756,64 @@ export default {
     },
     // 最短路径
     shortPath (startName) {
+      let i
       graph.selectAll()
-      var cells = graph.getSelectionCells()
-      var vertexList = []
-      var edgeList = []
-      var id = 0
-      var disList = new Map()
-      var idName = new Map()
-      var visit = new Map()
-      for (var i = 0; i < cells.length; ++i) {
+      const cells = graph.getSelectionCells()
+      const vertexList = []
+      const edgeList = []
+      let id = 0
+      const disList = new Map()
+      const idName = new Map()
+      const visit = new Map()
+      for (i = 0; i < cells.length; ++i) {
         if (cells[i].isVertex()) {
           vertexList.push(cells[i].id)
           disList.set(cells[i].id, Number.MAX_VALUE)
           visit.set(cells[i].id, 0)
           idName.set(cells[i].id, cells[i].value.attributes[0].value)
-          if (cells[i].value.attributes[0].value == startName) id = cells[i].id;
-        }
-        else {
-          var pair = {}
+          if (cells[i].value.attributes[0].value === startName) id = cells[i].id
+        } else {
+          const pair = {}
           pair.source = cells[i].source.id
           pair.target = cells[i].target.id
           pair.value = cells[i].value.attributes[1].nodeValue
           edgeList.push(pair)
         }
       }
-      //以第一个元件为起点
+      // 以第一个元件为起点
       disList.set(id, 0)
-      var min,minVertex
-      for (var i = 0; i < vertexList.length; ++i) {
+      let min, minVertex
+      for (i = 0; i < vertexList.length; ++i) {
         min = Number.MAX_VALUE
-        for (var j = 0; j < vertexList.length; ++j) {
-          if (visit.get(vertexList[j]) == 0 && disList.get(vertexList[j]) < min) {
+        for (let j = 0; j < vertexList.length; ++j) {
+          if (visit.get(vertexList[j]) === 0 && disList.get(vertexList[j]) < min) {
             min = disList.get(vertexList[j])
             minVertex = vertexList[j]
           }
         }
-        visit.set(minVertex,1)
-        for(var index in edgeList) { //寻找此时最短路径的点可到的点 并更新该点的最短路径
-          if (edgeList[index].source == minVertex) {
-            var target = edgeList[index].target
-            var value = parseFloat(edgeList[index].value)
-            if (visit.get(target) == 0 && disList.get(target) > disList.get(minVertex) + value) {
-              disList.set(target, disList.get(minVertex) + value)
+        visit.set(minVertex, 1)
+        for (const index in edgeList) { // 寻找此时最短路径的点可到的点 并更新该点的最短路径
+          if (edgeList.hasOwnProperty(index)) {
+            if (edgeList[index].source === minVertex) {
+              const target = edgeList[index].target
+              const value = parseFloat(edgeList[index].value)
+              if (visit.get(target) === 0 && disList.get(target) > disList.get(minVertex) + value) {
+                disList.set(target, disList.get(minVertex) + value)
+              }
             }
           }
         }
       }
-      var tmpList = []
+      const tmpList = []
       this.findPathFormVisible = false
       this.pathFormVisible = true
-      disList.forEach(function(value,key){
-        var pair = {}
+      disList.forEach(function (value, key) {
+        const pair = {}
         pair.key = idName.get(key)
-        if(value == Number.MAX_VALUE)pair.value = "不可达"
+        if (value === Number.MAX_VALUE)pair.value = '不可达'
         else pair.value = value
         tmpList.push(pair)
-      });
+      })
       this.tablePathForm = tmpList
       this.totalCount = tmpList.length
       graph.clearSelection()
@@ -827,18 +832,18 @@ export default {
       this.currentPage = val
     }
   },
-  mounted () {
+  mounted: function () {
     // 旋转
     mxVertexHandler.prototype.rotationEnabled = true
 
     doc = mxUtils.createXmlDocument()
-    var _this = this
+    const _this = this
 
     tbContainer = document.getElementById('tbContainer')
     container = document.getElementById('container')
     headContainer = document.getElementById('headContainer')
     rightContainer = document.getElementById('rightContainer')
-    var cellInfo = document.createElement('div')
+    const cellInfo = document.createElement('div')
     cellInfo.id = 'cellInfo'
     rightContainer.appendChild(cellInfo)
 
@@ -850,7 +855,7 @@ export default {
     mxEvent.disableContextMenu(container)
     // 允许两个节点间出现双向连接
     graph.setMultigraph(true)
-    //连接点允许误差
+    // 连接点允许误差
     graph.setTolerance(10)
     // 从中心/左上缩放
     graph.centerZoom = true
@@ -862,13 +867,13 @@ export default {
     const keyHandler = new mxKeyHandler(graph)
     // 按delete键删除元素
     keyHandler.bindKey(46, function (evt) {
-        graph.removeCells()
+      graph.removeCells()
     })
     // 应用自定义规则
     judgeConnection(graph)
     // 设置连接线为折线
     graph.connectionHandler.createEdgeState = function (me) {
-      var edge = graph.createEdge(
+      const edge = graph.createEdge(
         null,
         null,
         null,
@@ -940,26 +945,25 @@ export default {
     // 允许左键框选多个节点移动
     new mxRubberband(graph)
     // 折叠监听函数
-    var foldingHandler = function (sender, evt) {
-      var cells = evt.getProperty('cells')
-      for (var i = 0; i < cells.length; i++) {
-        var geo = graph.model.getGeometry(cells[i])
+    const foldingHandler = function (sender, evt) {
+      const cells = evt.getProperty('cells')
+      for (let i = 0; i < cells.length; i++) {
+        const geo = graph.model.getGeometry(cells[i])
         geo.width = 75
         geo.height = 60
       }
     }
     graph.addListener(mxEvent.FOLD_CELLS, foldingHandler)
     // 点击时直接点到底层元素
-    const getInitialCellForEvent = mxGraphHandler.prototype.getInitialCellForEvent;
+    const getInitialCellForEvent = mxGraphHandler.prototype.getInitialCellForEvent
     mxGraphHandler.prototype.getInitialCellForEvent = function (me) {
       child = me.getCell()
       return getInitialCellForEvent.apply(this, arguments)
     }
-    const selectCellForEvent = mxGraph.prototype.selectCellForEvent;
+    const selectCellForEvent = mxGraph.prototype.selectCellForEvent
     mxGraph.prototype.selectCellForEvent = function (cell) {
       cell = child
       selectCellForEvent.call(this, cell)
-      return
     }
     // 元件重命名重写
     graph.convertValueToString = function (cell) {
@@ -977,8 +981,8 @@ export default {
         graph.refresh(cell)
       } else {
         if (cell.value != null) {
-          var newType = doc.createElement(newValue)
-          for (var i = 0; i < cell.value.attributes.length; ++i) {
+          const newType = doc.createElement(newValue)
+          for (let i = 0; i < cell.value.attributes.length; ++i) {
             newType.setAttribute(cell.value.attributes[i].nodeName, cell.value.attributes[i].nodeValue)
           }
           cell.value = newType
@@ -988,7 +992,7 @@ export default {
     }
     // 撤销重做
     undoManager = new mxUndoManager()
-    var listener = function (sender, evt) {
+    const listener = function (sender, evt) {
       undoManager.undoableEditHappened(evt.getProperty('edit'))
     }
     graph.getModel().addListener(mxEvent.UNDO, listener)
@@ -1007,18 +1011,18 @@ export default {
         evt.preventDefault()
 
         // 取得落点坐标
-        var pt = mxUtils.convertPoint(
+        const pt = mxUtils.convertPoint(
           graph.container,
           mxEvent.getClientX(evt),
           mxEvent.getClientY(evt)
         )
-        var tr = graph.view.translate
-        var scale = graph.view.scale
-        var x = pt.x / scale - tr.x
-        var y = pt.y / scale - tr.y
+        const tr = graph.view.translate
+        const scale = graph.view.scale
+        const x = pt.x / scale - tr.x
+        const y = pt.y / scale - tr.y
 
         // 因为弹框限制，一次只能处理一个元件
-        var filesArray = event.dataTransfer.files
+        const filesArray = event.dataTransfer.files
         curFile = filesArray[0]
         curX = x
         curY = y
@@ -1031,20 +1035,19 @@ export default {
     graph.getSelectionModel().addListener(mxEvent.CHANGE, function (sender, evt) {
       selectionChanged(graph)
     })
-    getModel(graph);
+    getModel(graph)
     // 连线时强制弹框填写参数
-    var cellsAdded = graph.cellsAdded
-    graph.cellsAdded = function(cells, parent, index, source, target, absolute, constrain, extend) {
-      if(cells[0].isVertex() === false) {
+    const cellsAdded = graph.cellsAdded
+    graph.cellsAdded = function (cells, parent, index, source, target, absolute, constrain, extend) {
+      if (cells[0].isVertex() === false) {
         _this.editForm.eid = ''
         _this.editForm.diameter = 0
         _this.editForm.length = 0
         _this.editForm.roughness = 0
         _this.editFormVisible = true
       }
-        cellsAdded.apply(this,arguments)
+      cellsAdded.apply(this, arguments)
     }
-
 
     // 自定义规则
     function judgeConnection (graph) {
@@ -1068,9 +1071,9 @@ export default {
         menu.addItem('删除', null, function () {
           graph.removeCells()
         })
-        if(!cell.isVertex()) {
+        if (!cell.isVertex()) {
           menu.addItem('属性', null, function () {
-            var cell2 = graph.getSelectionCell()
+            const cell2 = graph.getSelectionCell()
             if (cell2.value == null) {
               _this.editForm.eid = ''
               _this.editForm.diameter = 0
@@ -1108,27 +1111,29 @@ export default {
         .then(function (response) {
           if (response.status === 200) {
             elementInfo = response.data.data
-            var basePath = 'http://localhost:8081'
-            for (var index in elementInfo) {
-              curElement = elementInfo[index]
-              var image = document.createElement('img')
-              image.id = curElement.id
-              image.src = basePath + curElement.path
-              if (image.height > 99) {
-                image.style = 'height: 50px;'
+            const basePath = 'http://localhost:8081'
+            for (const index in elementInfo) {
+              if (elementInfo.hasOwnProperty(index)) {
+                curElement = elementInfo[index]
+                const image = document.createElement('img')
+                image.id = curElement.id
+                image.src = basePath + curElement.path
+                if (image.height > 99) {
+                  image.style = 'height: 50px;'
+                } else {
+                  image.style = 'width: 100px;'
+                }
+                // image.style = 'transform:scale(0.5);'
+                const center = document.createElement('center')
+                center.appendChild(image)
+                tbContainer.appendChild(center)
+                const type = createElement(curElement.name)
+                type.setAttribute('海拔', '0')
+                getAttributes(graph, curElement.id, type)
+                getConnections(graph, curElement, type)
+                customFunc(graph, image, type, curElement.id)
+                elementNameCountList[curElement.id] = 1
               }
-              else {
-                image.style = 'width: 100px;'
-              }
-              // image.style = 'transform:scale(0.5);'
-              var center = document.createElement('center')
-              center.appendChild(image)
-              tbContainer.appendChild(center)
-              var type = createElement(curElement.name)
-              getAttributes(graph, curElement.id, type)
-              getConnections(graph, curElement, type)
-              customFunct(graph, image, type, curElement.id)
-              elementNameCountList[curElement.id] = 1
             }
           } else {
             _this.$message('获取管道元件信息错误，请重试！')
@@ -1150,8 +1155,8 @@ export default {
         .post('/model/' + _this.projectId)
         .then(function (response) {
           if (response.status === 200) {
-            var model = mxUtils.parseXml(response.data.data["model"])
-            var dec = new mxCodec(model)
+            const model = mxUtils.parseXml(response.data.data.model)
+            const dec = new mxCodec(model)
             dec.decode(model.documentElement, graph.getModel())
             // graph.selectAll()
             // var cells = graph.getSelectionCells()
@@ -1176,41 +1181,43 @@ export default {
 
     // 创建节点类型
     function createElement (name) {
-      for (var index in elementAttrList) {
-        var s = new XMLSerializer()
-        if (s.serializeToString(elementAttrList[index]).startsWith('<' + name)) {
-          return elementAttrList[index]
+      for (const index in elementAttrList) {
+        if (elementAttrList.hasOwnProperty(index)) {
+          const s = new XMLSerializer()
+          if (s.serializeToString(elementAttrList[index]).startsWith('<' + name)) {
+            return elementAttrList[index]
+          }
         }
       }
-      var eletype = doc.createElement(name)
-      elementAttrList.push(eletype)
-      return eletype
+      const elementType = doc.createElement(name)
+      elementAttrList.push(elementType)
+      return elementType
     }
 
     // 自定义拖拽函数的动作
-    function customFunct (graph, image, type, id) {
-      var funct = function (graph, evt, cell, x, y) {
+    function customFunc (graph, image, type, id) {
+      const func = function (graph, evt, cell, x, y) {
         addCell(graph, image, x, y, type, id)
       }
-      mxUtils.makeDraggable(image, graph, funct, null)
+      mxUtils.makeDraggable(image, graph, func, null)
     }
 
     // toolbar拖拽添加节点
     function addCell (graph, image, x, y, type, id) {
       console.log(graph.getDefaultParent().id)
       if (graph.getDefaultParent().id !== '1' && type.nodeName === '站场') {
-        _this.$message("站场内不能再插入站场！")
+        _this.$message('站场内不能再插入站场！')
         return
       }
-      var width = image.naturalWidth / 2
-      var height = image.naturalHeight / 2
-      var style =
+      const width = image.naturalWidth / 2
+      const height = image.naturalHeight / 2
+      const style =
         'shape=image;image=' +
         image.src +
         ';verticalLabelPosition=bottom;verticalAlign=top'
-      var constraints = []
+      let constraints = []
       // 自动命名
-      var name = ''
+      let name = ''
       if (elementNameCountList[id] < 10) {
         name = type.nodeName + '0' + elementNameCountList[id]
         elementNameCountList[id]++
@@ -1219,22 +1226,24 @@ export default {
         elementNameCountList[id]++
       }
       // 根据命名复制类型
-      var newType = doc.createElement(type.nodeName)
+      const newType = doc.createElement(type.nodeName)
       newType.setAttribute('名称', name)
-      for (var i = 0; i < type.attributes.length; ++i) {
+      for (let i = 0; i < type.attributes.length; ++i) {
         newType.setAttribute(type.attributes[i].nodeName, type.attributes[i].nodeValue)
       }
       // 添加连接点
-      for (var index in elementConnectionsList) {
-        if (elementConnectionsList[index].id == id) {
-          constraints = elementConnectionsList[index].connections
-          break
+      for (const index in elementConnectionsList) {
+        if (elementConnectionsList.hasOwnProperty(index)) {
+          if (elementConnectionsList[index].id === id) {
+            constraints = elementConnectionsList[index].connections
+            break
+          }
         }
       }
-      var parent = graph.getDefaultParent()
+      const parent = graph.getDefaultParent()
       graph.getModel().beginUpdate()
       try {
-        var vertex = graph.insertVertex(parent, null, newType, x, y, width, height, style)
+        const vertex = graph.insertVertex(parent, null, newType, x, y, width, height, style)
         vertex.constraints = constraints
       } finally {
         graph.getModel().endUpdate()
@@ -1249,12 +1258,10 @@ export default {
         })
         .then(function (response) {
           if (response.status === 200) {
-            var attributes = response.data.data
-              type.setAttribute("压力", attributes["pressure"])
-              type.setAttribute("载荷", attributes["loads"])
-              type.setAttribute("压力已知", attributes["pressure_state"])
-              type.setAttribute("载荷已知", attributes["load_state"])
-              type.setAttribute("海拔", attributes["elevation"])
+            const attributes = response.data.data
+            for (let i = 0; i < attributes.length; ++i) {
+              type.setAttribute(attributes[i].attribute_name, attributes[i].attribute_value)
+            }
           } else {
             _this.$message('获取' + elementID + '号元件属性错误，请重试！')
           }
@@ -1267,24 +1274,26 @@ export default {
 
     // 根据elementID请求connection
     function getConnections (graph, curElement, type) {
-      var elementID = curElement.id
+      const elementID = curElement.id
       _this.$axios
         .post('/findConnectionByEid', {
           element_id: elementID
         })
         .then(function (response) {
           if (response.status === 200) {
-            var connections = response.data.data
-            var curConnection = {}
+            const connections = response.data.data
+            const curConnection = {}
             curConnection.id = elementID
-            var connect = []
-            for (var index in connections) {
-              var temp = connections[index]
-              var pair = {}
-              pair.x = temp.x
-              pair.y = temp.y
-              pair.perimeter = true
-              connect.push(pair)
+            const connect = []
+            for (const index in connections) {
+              if (connections.hasOwnProperty(index)) {
+                const temp = connections[index]
+                const pair = {}
+                pair.x = temp.x
+                pair.y = temp.y
+                pair.perimeter = true
+                connect.push(pair)
+              }
             }
             curConnection.connections = connect
             elementConnectionsList.push(curConnection)
@@ -1300,22 +1309,22 @@ export default {
 
     // 拖拽生成节点，将该图片加入侧边工具栏
     _this.handleDrop = function (graph, file, x, y, type, eid) {
-      if (file.type.substring(0, 5) == 'image') {
+      if (file.type.substring(0, 5) === 'image') {
         // 生成节点
-        var reader = new FileReader()
+        const reader = new FileReader()
         reader.onload = function (e) {
-          var data = e.target.result
-          var img = new Image()
+          let data = e.target.result
+          const img = new Image()
           img.onload = function () {
-            var w = Math.max(1, img.width / 2)
-            var h = Math.max(1, img.height / 2)
-            var semi = data.indexOf(';')
+            const w = Math.max(1, img.width / 2)
+            const h = Math.max(1, img.height / 2)
+            const semi = data.indexOf(';')
             if (semi > 0) {
               data =
                 data.substring(0, semi) +
                 data.substring(data.indexOf(',', semi + 1))
             }
-            var name = ''
+            let name
             if (elementNameCountList[eid] < 10) {
               name = type.nodeName + '0' + elementNameCountList[eid]
               elementNameCountList[eid]++
@@ -1323,60 +1332,62 @@ export default {
               name = type.nodeName + elementNameCountList[eid]
               elementNameCountList[eid]++
             }
-            var newType = doc.createElement(type.nodeName)
+            const newType = doc.createElement(type.nodeName)
             newType.setAttribute('名称', name)
-            for (var i = 0; i < type.attributes.length; ++i) {
+            for (let i = 0; i < type.attributes.length; ++i) {
               newType.setAttribute(type.attributes[i].nodeName, type.attributes[i].nodeValue)
             }
-            var constraints = []
-            for (var index in elementConnectionsList) {
-              if (elementConnectionsList[index].id == eid) {
-                constraints = elementConnectionsList[index].connections
-                break
+            let constraints = []
+            for (const index in elementConnectionsList) {
+              if (elementConnectionsList.hasOwnProperty(index)) {
+                if (elementConnectionsList[index].id === eid) {
+                  constraints = elementConnectionsList[index].connections
+                  break
+                }
               }
             }
-            var parent = graph.getDefaultParent()
-            var vertex = graph.insertVertex(parent, null, newType, x, y, w, h,
+            const parent = graph.getDefaultParent()
+            const vertex = graph.insertVertex(parent, null, newType, x, y, w, h,
               'shape=image;image=' + data + ';verticalLabelPosition=bottom;verticalAlign=top'
             )
             vertex.constraints = constraints
           }
           img.src = data
-          var item = document.createElement('img')
+          const item = document.createElement('img')
           item.src = img.src
           item.width = 100
           item.height = 50
-          var center = document.createElement('center')
+          const center = document.createElement('center')
           center.appendChild(item)
           tbContainer.appendChild(center)
-          addedCustomFunct(graph, item, type, eid)
+          addedCustomFunc(graph, item, type, eid)
         }
         reader.readAsDataURL(file)
       }
     }
 
     // 新添加图片（data格式）拖拽函数的动作
-    function addedCustomFunct (graph, image, type, eid) {
-      var funct = function (graph, evt, cell, x, y) {
+    function addedCustomFunc (graph, image, type, eid) {
+      const func = function (graph, evt, cell, x, y) {
         addDataCell(graph, image, x, y, type, eid)
       }
-      mxUtils.makeDraggable(image, graph, funct, null)
+      mxUtils.makeDraggable(image, graph, func, null)
     }
 
     // toolbar拖拽添加data格式节点
     function addDataCell (graph, image, x, y, type, eid) {
-      var data = image.src
-      var img = new Image()
+      let data = image.src
+      const img = new Image()
       img.onload = function () {
-        var w = Math.max(1, img.width / 2)
-        var h = Math.max(1, img.height / 2)
-        var semi = data.indexOf(';')
+        const w = Math.max(1, img.width / 2)
+        const h = Math.max(1, img.height / 2)
+        const semi = data.indexOf(';')
         if (semi > 0) {
           data =
             data.substring(0, semi) +
             data.substring(data.indexOf(',', semi + 1))
         }
-        var name = ''
+        let name
         if (elementNameCountList[eid] < 10) {
           name = type.nodeName + '0' + elementNameCountList[eid]
           elementNameCountList[eid]++
@@ -1384,20 +1395,22 @@ export default {
           name = type.nodeName + elementNameCountList[eid]
           elementNameCountList[eid]++
         }
-        var newType = doc.createElement(type.nodeName)
+        const newType = doc.createElement(type.nodeName)
         newType.setAttribute('名称', name)
-        for (var i = 0; i < type.attributes.length; ++i) {
+        for (let i = 0; i < type.attributes.length; ++i) {
           newType.setAttribute(type.attributes[i].nodeName, type.attributes[i].nodeValue)
         }
-        var constraints = []
-        for (var index in elementConnectionsList) {
-          if (elementConnectionsList[index].id == eid) {
-            constraints = elementConnectionsList[index].connections
-            break
+        let constraints = []
+        for (const index in elementConnectionsList) {
+          if (elementConnectionsList.hasOwnProperty(index)) {
+            if (elementConnectionsList[index].id === eid) {
+              constraints = elementConnectionsList[index].connections
+              break
+            }
           }
         }
-        var parent = graph.getDefaultParent()
-        var vertex = graph.insertVertex(parent, null, newType, x, y, w, h,
+        const parent = graph.getDefaultParent()
+        const vertex = graph.insertVertex(parent, null, newType, x, y, w, h,
           'shape=image;image=' + data + ';verticalLabelPosition=bottom;verticalAlign=top'
         )
         vertex.constraints = constraints
@@ -1407,36 +1420,40 @@ export default {
 
     // 动态新增右侧文本框
     function createTextField (graph, form, cell, attribute) {
-      var tr = document.createElement('tr')
-      var name = document.createElement('td')
+      const tr = document.createElement('tr')
+      const name = document.createElement('td')
       name.innerText = attribute.nodeName + ':'
       tr.appendChild(name)
-      var tdInput = document.createElement('td')
-      var input = document.createElement('input')
+      const tdInput = document.createElement('td')
+      const input = document.createElement('input')
       input.type = 'text'
       input.style = 'width: 130px;'
       input.value = attribute.nodeValue
       tdInput.appendChild(input)
       tr.appendChild(tdInput)
-      var unit = document.createElement('td')
-      if(attribute.nodeName === "压力") {
-        unit.innerText = "MPa"
-      }
-      else if(attribute.nodeName === "载荷") {
-        unit.innerText = "Sm³/d"
-      }
-      else if(attribute.nodeName === "海拔" || attribute.nodeName === "内径" ||
-              attribute.nodeName === "长度" || attribute.nodeName === "粗糙度") {
-        unit.innerText = "m"
-      }
-      else {
-        unit.innerText = ""
+      const unit = document.createElement('td')
+      if (attribute.nodeName === '干线压力' || attribute.nodeName === '压力' ||
+        attribute.nodeName === '进场压力' || attribute.nodeName === '出场压力') {
+        unit.innerText = 'MPa'
+      } else if (attribute.nodeName === '载荷') {
+        unit.innerText = 'Sm³/d'
+      } else if (attribute.nodeName === '海拔' || attribute.nodeName === '内径' ||
+        attribute.nodeName === '长度') {
+        unit.innerText = 'm'
+      } else if (attribute.nodeName === '天然气热值') {
+        unit.innerText = 'kJ/m³'
+      } else if (attribute.nodeName === '引射率' || attribute.nodeName === '等熵效率' ||
+        attribute.nodeName === '原动机效率' || attribute.nodeName === '压缩机效率' ||
+        attribute.nodeName === '产率') {
+        unit.innerText = '%'
+      } else {
+        unit.innerText = ''
       }
       tr.appendChild(unit)
       form.appendChild(tr)
-      var applyHandler = function () {
-        var newValue = input.value || ''
-        var oldValue = cell.getAttribute(attribute.nodeName, '')
+      const applyHandler = function () {
+        const newValue = input.value || ''
+        const oldValue = cell.getAttribute(attribute.nodeName, '')
         if (newValue !== oldValue) {
           graph.getModel().beginUpdate()
           try {
@@ -1460,12 +1477,12 @@ export default {
       }
     }
 
-    // 更新rightbar内容
+    // 更新right bar内容
     function selectionChanged (graph) {
-      var div = document.getElementById('cellInfo')
+      const div = document.getElementById('cellInfo')
       graph.container.focus()
       div.innerHTML = ''
-      var cell = graph.getSelectionCell()
+      const cell = graph.getSelectionCell()
       if (cell == null) {
         const center = document.createElement('center')
         mxUtils.writeln(center, '未选中元件！')
@@ -1475,19 +1492,47 @@ export default {
         mxUtils.writeln(center, '未命名')
         div.appendChild(center)
       } else {
-        var center = document.createElement('center')
+        const center = document.createElement('center')
         mxUtils.writeln(center, cell.value.nodeName)
-        var table = document.createElement('table')
-        var form = document.createElement('tbody')
-        var attrs = cell.value.attributes
-        for (var i = 0; i < attrs.length; i++) {
-          createTextField(graph, form, cell, attrs[i])
-        }
-        var br = document.createElement('br')
+        const br = document.createElement('br')
         center.appendChild(br)
-        table.appendChild(form)
-        center.appendChild(table)
-        div.appendChild(center)
+        const table1 = document.createElement('table')
+        const form1 = document.createElement('tbody')
+        const attrs = cell.value.attributes
+
+        if (cell.isVertex()) {
+          // 公共属性【名称，海拔】后加下划线
+          createTextField(graph, form1, cell, attrs[0])
+          createTextField(graph, form1, cell, attrs[1])
+          const hr = document.createElement('hr')
+          table1.appendChild(form1)
+          center.appendChild(table1)
+          const br1 = document.createElement('br')
+          center.appendChild(br1)
+          center.appendChild(hr)
+          // 专用属性
+          const table2 = document.createElement('table')
+          const form2 = document.createElement('tbody')
+          for (let i = 2; i < attrs.length; i++) {
+            createTextField(graph, form2, cell, attrs[i])
+          }
+          const br2 = document.createElement('br')
+          center.appendChild(br2)
+          table2.appendChild(form2)
+          center.appendChild(table2)
+          div.appendChild(center)
+        } else {
+          const table = document.createElement('table')
+          const form = document.createElement('tbody')
+          for (let i = 0; i < attrs.length; i++) {
+            createTextField(graph, form, cell, attrs[i])
+          }
+          const br = document.createElement('br')
+          center.appendChild(br)
+          table.appendChild(form)
+          center.appendChild(table)
+          div.appendChild(center)
+        }
       }
     }
   }
