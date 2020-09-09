@@ -127,43 +127,21 @@
       </el-tab-pane>
 
       <el-tab-pane label="节点数据" name="nodes">
-        <el-card>
-          <el-button size="small" type="primary" round @click="createNode">添加节点</el-button>
-          <el-table :data="nodes" border stripe>
-            <el-table-column label="名称" prop="name" width="120px"></el-table-column>
-            <el-table-column label="元件类型" prop="elementName" width="120px"></el-table-column>
-            <el-table-column label="压力(MPa)" prop="pressure" width="100px"></el-table-column>
-            <el-table-column label="载荷(Sm³/d)" prop="loads" width="120px"></el-table-column>
-            <el-table-column label="压力是否已知" :formatter="formatBoolean" prop="pressureState" width="80px"></el-table-column>
-            <el-table-column label="载荷是否已知" :formatter="formatBoolean" prop="loadState" width="80px"></el-table-column>
-            <el-table-column label="海拔" prop="elevation" width="80px"></el-table-column>
-            <el-table-column label="横坐标" prop="x" width="80px"></el-table-column>
-            <el-table-column label="纵坐标" prop="y" width="80px"></el-table-column>
-            <el-table-column label="操作" flex="right" width="180px">
-              <template slot-scope="scope">
-                <el-button size="mini" type="primary" @click="editNode(scope.row.id)">编辑</el-button>
-                <el-popconfirm
-                  confirmButtonText='好的'
-                  cancelButtonText='不用了'
-                  icon="el-icon-info"
-                  iconColor="red"
-                  @onConfirm="deleteNode(scope.row.id)"
-                  title="确认删除该节点？">
-                  <el-button slot="reference" size="mini" type="danger">删除</el-button>
-                </el-popconfirm>
-              </template>
-            </el-table-column>
-          </el-table>
-
-          <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="pageInfo.pageNumber"
-            :page-sizes="[2, 5, 10]"
-            :page-size="pageInfo.pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"></el-pagination>
-        </el-card>
+        <el-tabs>
+          <el-tab-pane label="普通节点数据">
+            <el-card>
+              <nodeList style="width: 100%;height: 82vh;"></nodeList>
+            </el-card>
+          </el-tab-pane>
+          <el-tab-pane label="生产井数据">
+            <el-card>
+              <attributeList style="width: 100%;height: 82vh;"></attributeList>
+            </el-card>
+          </el-tab-pane>
+          <el-tab-pane label="引射器数据"></el-tab-pane>
+          <el-tab-pane label="站场数据"></el-tab-pane>
+          <el-tab-pane label="压缩机数据"></el-tab-pane>
+        </el-tabs>
       </el-tab-pane>
 
       <el-tab-pane label="管道数据" name="pipes">
@@ -224,6 +202,8 @@
 
 <script>
 import moment from 'moment'
+import NodeList from '../list/NodeList'
+import AttributeList from '../list/AttributeList'
 import Graph from './Graph'
 export default {
   data () {
@@ -315,7 +295,9 @@ export default {
     }
   },
   components: {
-    graph: Graph
+    attributeList: AttributeList,
+    graph: Graph,
+    nodeList: NodeList
   },
   methods: {
     // 获取所有节点，用于设置连接关系
