@@ -446,7 +446,7 @@ export default {
         await this.$refs.stationList.getStation()
       }
       if (tab.name === 'compressor') {
-
+        await this.$refs.stationList.getCompressor()
       }
     },
 
