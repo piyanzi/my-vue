@@ -87,7 +87,7 @@
           </el-tab-pane>
           <el-tab-pane label="生产井数据">
             <el-card>
-              <attributeList style="width: 100%;height: 82vh;"></attributeList>
+              <wellList style="width: 100%;height: 82vh;"></wellList>
             </el-card>
           </el-tab-pane>
           <el-tab-pane label="引射器数据"></el-tab-pane>
@@ -155,7 +155,7 @@
 <script>
 import moment from 'moment'
 import NodeList from '../list/NodeList'
-import AttributeList from '../list/AttributeList'
+import WellList from '../list/WellList'
 import Graph from './Graph'
 export default {
   data () {
@@ -241,7 +241,7 @@ export default {
     }
   },
   components: {
-    attributeList: AttributeList,
+    wellList: WellList,
     graph: Graph,
     nodeList: NodeList
   },
