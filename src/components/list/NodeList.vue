@@ -9,7 +9,7 @@
           icon="el-icon-circle-plus-outline"
           size="mini"
           round
-        >新增连接点</el-button>
+        >新增普通节点</el-button>
       </el-col>
     </el-row>
     <br />
@@ -182,10 +182,12 @@ export default {
             // eslint-disable-next-line eqeqeq
             if (response.status === 200) {
               that.cancel()
+              that.$message('删除成功！')
               this.getNode()
             }
           })
           .catch(function (error) {
+            that.$message('删除失败！')
             console.log(error)
           })
       })
@@ -235,6 +237,7 @@ export default {
               }
             })
             .catch(function (error) {
+              that.$message('新增失败！')
               console.log(error)
             })
         }
@@ -255,6 +258,10 @@ export default {
           y = this.editForm.y
           this.$axios
             .post('/setNode', {
+              elementId: 1,
+              elementName: '普通节点',
+              projectId: this.pid,
+              modelId: this.editForm.modelId,
               id: id,
               name: name,
               pressure: pressure,
@@ -269,10 +276,12 @@ export default {
               // eslint-disable-next-line eqeqeq
               if (response.status === 200) {
                 that.cancel()
+                that.$message('修改成功！')
                 this.getNode()
               }
             })
             .catch(function (error) {
+              that.$message('修改失败！')
               console.log(error)
             })
         }
@@ -336,6 +345,7 @@ export default {
       editForm: {
         id: '',
         name: '',
+        modelId: '',
         pressure: '',
         pressureState: '',
         loads: '',
