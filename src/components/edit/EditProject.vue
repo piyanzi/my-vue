@@ -90,9 +90,21 @@
               <wellList ref="wellList" style="width: 100%;height: 82vh;"></wellList>
             </el-card>
           </el-tab-pane>
-          <el-tab-pane label="引射器数据" name="ejector"></el-tab-pane>
-          <el-tab-pane label="站场数据" name="station"></el-tab-pane>
-          <el-tab-pane label="压缩机数据" name="compressor"></el-tab-pane>
+          <el-tab-pane label="引射器数据" name="ejector">
+            <el-card>
+              <ejectorList ref="ejectorList" style="width: 100%;height: 82vh;"></ejectorList>
+            </el-card>
+          </el-tab-pane>
+          <el-tab-pane label="压缩机数据" name="compressor">
+            <el-card>
+              <compressorList ref="compressorList" style="width: 100%;height: 82vh;"></compressorList>
+            </el-card>
+          </el-tab-pane>
+          <el-tab-pane label="站场数据" name="station">
+            <el-card>
+              <stationList ref="stationList" style="width: 100%;height: 82vh;"></stationList>
+            </el-card>
+          </el-tab-pane>
         </el-tabs>
       </el-tab-pane>
 
@@ -156,6 +168,9 @@
 import moment from 'moment'
 import NodeList from '../list/NodeList'
 import WellList from '../list/WellList'
+import EjectorList from '../list/EjectorList'
+import StationList from '../list/StationList'
+import CompressorList from '../list/CompressorList'
 import Graph from './Graph'
 export default {
   data () {
@@ -242,6 +257,9 @@ export default {
   },
   components: {
     wellList: WellList,
+    ejectorList: EjectorList,
+    stationList: StationList,
+    compressorList: CompressorList,
     graph: Graph,
     nodeList: NodeList
   },
@@ -422,10 +440,10 @@ export default {
         await this.$refs.wellList.getWell()
       }
       if (tab.name === 'ejector') {
-
+        await this.$refs.ejectorList.getEjector()
       }
       if (tab.name === 'station') {
-
+        await this.$refs.stationList.getStation()
       }
       if (tab.name === 'compressor') {
 
