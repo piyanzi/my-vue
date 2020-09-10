@@ -79,20 +79,20 @@
       </el-tab-pane>
 
       <el-tab-pane label="节点数据" name="nodes">
-        <el-tabs>
-          <el-tab-pane label="普通节点数据">
+        <el-tabs @tab-click="nodeClick">
+          <el-tab-pane label="普通节点数据" name="node">
             <el-card>
-              <nodeList style="width: 100%;height: 82vh;"></nodeList>
+              <nodeList ref="nodeList" style="width: 100%;height: 82vh;"></nodeList>
             </el-card>
           </el-tab-pane>
-          <el-tab-pane label="生产井数据">
+          <el-tab-pane label="生产井数据" name="well">
             <el-card>
-              <wellList style="width: 100%;height: 82vh;"></wellList>
+              <wellList ref="wellList" style="width: 100%;height: 82vh;"></wellList>
             </el-card>
           </el-tab-pane>
-          <el-tab-pane label="引射器数据"></el-tab-pane>
-          <el-tab-pane label="站场数据"></el-tab-pane>
-          <el-tab-pane label="压缩机数据"></el-tab-pane>
+          <el-tab-pane label="引射器数据" name="ejector"></el-tab-pane>
+          <el-tab-pane label="站场数据" name="station"></el-tab-pane>
+          <el-tab-pane label="压缩机数据" name="compressor"></el-tab-pane>
         </el-tabs>
       </el-tab-pane>
 
@@ -409,7 +409,26 @@ export default {
         await this.getPipes(this.pageInfo)
       }
       if (tab.name === 'nodes') {
-        await this.getNodes(this.pageInfo)
+        await this.$refs.nodeList.getNode()
+      }
+    },
+
+    // node tab标签切换
+    async nodeClick (tab) {
+      if (tab.name === 'node') {
+        await this.$refs.nodeList.getNode()
+      }
+      if (tab.name === 'well') {
+        await this.$refs.wellList.getWell()
+      }
+      if (tab.name === 'ejector') {
+
+      }
+      if (tab.name === 'station') {
+
+      }
+      if (tab.name === 'compressor') {
+
       }
     },
 
